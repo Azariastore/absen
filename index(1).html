@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Absen Shalat - Siswa</title>
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#2D6A4F">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs" type="module"></script>
+<style>
+  :root {
+    --bg:#F7F5F0;--surface:#FFFFFF;--surface2:#F0EDE6;
+    --accent:#2D6A4F;--accent2:#52B788;--accent3:#B7E4C7;
+    --text:#1A1A1A;--text2:#5C5C5C;--text3:#9E9E9E;
+    --border:#E0DDD6;--danger:#C1440E;
+    --shadow:0 2px 16px rgba(0,0,0,0.07);
+    --radius:14px;--radius-sm:8px;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.6;}
+  #loading-screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;background:linear-gradient(160deg,var(--bg) 0%,var(--accent3) 140%);padding:24px;position:fixed;inset:0;z-index:9999;transition:opacity .5s ease,visibility .5s ease;}
+  #loading-screen.fade-out{opacity:0;visibility:hidden;pointer-events:none;}
+  .splash-lottie{width:160px;height:160px;display:flex;align-items:center;justify-content:center;}
+  .splash-lottie dotlottie-player{width:100%;height:100%;}
+  /* Fallback CSS (bulan sabit berdenyut) -- tampil otomatis kalau Lottie gagal/lambat load */
+  .splash-fallback{width:96px;height:96px;display:none;align-items:center;justify-content:center;position:relative;}
+  .splash-fallback.show{display:flex;}
+  .splash-fallback .moon{width:72px;height:72px;border-radius:50%;background:var(--accent);box-shadow:22px 0 0 0 var(--bg);transform:rotate(-12deg);animation:moon-pulse 2.2s ease-in-out infinite;}
+  .splash-fallback .star{position:absolute;color:var(--accent2);font-size:18px;animation:star-twinkle 1.8s ease-in-out infinite;}
+  .splash-fallback .star1{top:4px;right:8px;animation-delay:.3s;}
+  .splash-fallback .star2{bottom:10px;left:2px;font-size:12px;animation-delay:.9s;}
+  @keyframes moon-pulse{0%,100%{transform:rotate(-12deg) scale(1);}50%{transform:rotate(-12deg) scale(1.08);}}
+  @keyframes star-twinkle{0%,100%{opacity:.3;}50%{opacity:1;}}
+  .splash-brand{font-family:'DM Serif Display',serif;font-size:24px;color:var(--text);text-align:center;}
+  .splash-sub{color:var(--text2);font-size:13px;text-align:center;max-width:260px;}
+  #loading-text{color:var(--text2);font-size:14px;font-weight:500;min-height:20px;text-align:center;}
+  .splash-progress-wrap{width:220px;max-width:80vw;}
+  .splash-progress-track{width:100%;height:6px;background:var(--surface2);border-radius:99px;overflow:hidden;}
+  .splash-progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:99px;transition:width .35s ease;}
+  .splash-progress-pct{margin-top:8px;text-align:center;font-size:12px;color:var(--text3);font-weight:600;letter-spacing:.3px;}
+  #login-screen{min-height:100vh;display:none;align-items:center;justify-content:center;padding:24px;background:var(--bg);}
+  .login-card{background:var(--surface);border-radius:20px;padding:48px 40px;width:100%;max-width:420px;box-shadow:0 8px 40px rgba(0,0,0,0.09);text-align:center;border:1px solid var(--border);}
+  .login-icon{width:64px;height:64px;background:var(--accent3);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:28px;}
+  .login-title{font-family:'DM Serif Display',serif;font-size:28px;color:var(--text);margin-bottom:6px;}
+  .login-subtitle{color:var(--text2);font-size:14px;margin-bottom:32px;font-weight:300;}
+  .login-label{display:block;text-align:left;font-size:13px;font-weight:500;color:var(--text2);margin-bottom:8px;letter-spacing:.5px;text-transform:uppercase;}
+  .login-select{width:100%;padding:14px 16px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:15px;color:var(--text);background:var(--surface);appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235C5C5C' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;cursor:pointer;transition:border-color .2s;margin-bottom:20px;}
+  .login-select:focus{outline:none;border-color:var(--accent);}
+  .btn-primary{width:100%;padding:14px;background:var(--accent);color:white;border:none;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;transition:background .2s,transform .1s;letter-spacing:.3px;}
+  .btn-primary:hover{background:#245C41;}
+  .btn-primary:active{transform:scale(.98);}
+  #app{display:none;min-height:100vh;}
+  .header{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+  .header-user{font-size:13px;color:var(--text2);background:var(--surface2);padding:6px 12px;border-radius:20px;font-weight:500;}
+  .header-actions{display:flex;gap:8px;}
+  .btn-icon{padding:8px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:transparent;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text2);font-weight:500;transition:all .2s;}
+  .btn-icon:hover{background:var(--surface2);border-color:var(--text3);color:var(--text);}
+  .btn-icon.active{background:var(--accent);border-color:var(--accent);color:white;}
+  .main{padding:24px 20px;max-width:680px;margin:0 auto;}
+  .date-bar{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;}
+  .date-day{font-family:'DM Serif Display',serif;font-size:20px;color:var(--text);}
+  .date-full{font-size:13px;color:var(--text3);}
+  .streak-badge{background:var(--accent3);color:var(--accent);font-size:12px;font-weight:600;padding:6px 12px;border-radius:20px;}
+  .section-title{font-size:12px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;margin-top:24px;}
+  .prayer-grid{display:flex;flex-direction:column;gap:10px;}
+  .prayer-card{background:var(--surface);-webkit-tap-highlight-color:transparent;border:1.5px solid var(--border);border-radius:var(--radius);padding:18px 20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:all .2s;user-select:none;}
+  .prayer-card:focus,.prayer-card:focus-visible{outline:none;}
+  .prayer-card:hover{border-color:var(--accent2);box-shadow:var(--shadow);}
+  .prayer-card.checked{background:#F0FFF7;border-color:var(--accent2);}
+  .prayer-card.haid{background:#FFF0F5;border-color:#FFB6C1;}
+  .prayer-left{display:flex;align-items:center;gap:14px;}
+  .prayer-time-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+  .prayer-info{display:flex;flex-direction:column;}
+  .prayer-name{font-weight:600;font-size:15px;color:var(--text);}
+  .prayer-time-hint{font-size:12px;color:var(--text3);margin-top:1px;}
+  .checkbox-custom{width:24px;height:24px;border-radius:6px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;}
+  .prayer-card.checked .checkbox-custom{background:var(--accent);border-color:var(--accent);color:white;}
+  .prayer-card.haid .checkbox-custom{background:#FF69B4;border-color:#FF69B4;color:white;}
+  .check-icon{display:none;font-size:13px;}
+  .prayer-card.checked .check-icon,.prayer-card.haid .check-icon{display:block;}
+  .progress-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:8px;}
+  .progress-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+  .progress-label{font-weight:500;font-size:14px;}
+  .progress-count{font-family:'DM Serif Display',serif;font-size:20px;color:var(--accent);}
+  .progress-bar-track{height:6px;background:var(--surface2);border-radius:99px;overflow:hidden;}
+  .progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:99px;transition:width .4s ease;}
+  #dashboard-view{display:none;}
+  .filter-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+  .filter-btn{padding:7px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface);font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .18s;font-family:'DM Sans',sans-serif;}
+  .filter-btn.active{background:var(--accent);border-color:var(--accent);color:white;}
+  .prayer-filter-row{display:flex;gap:6px;margin-bottom:20px;overflow-x:auto;padding-bottom:4px;}
+  .prayer-filter-btn{padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface);font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;transition:all .18s;}
+  .prayer-filter-btn.active{background:var(--surface2);border-color:var(--text3);color:var(--text);}
+  .summary-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:20px;}
+  @media(max-width:600px){.summary-grid{grid-template-columns:repeat(3,1fr);}}
+  .summary-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 10px;text-align:center;}
+  .summary-card-name{font-size:11px;color:var(--text3);font-weight:500;}
+  .summary-card-nums{font-family:'DM Serif Display',serif;font-size:18px;color:var(--accent);margin:2px 0;}
+  .summary-card-sub{font-size:10px;color:var(--text3);}
+  .student-list{display:flex;flex-direction:column;gap:8px;}
+  .student-row{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;display:flex;align-items:center;gap:12px;}
+  .student-number{width:28px;height:28px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--text3);flex-shrink:0;}
+  .student-name{flex:1;font-weight:500;font-size:14px;}
+  .prayer-dots{display:flex;gap:5px;}
+  .prayer-dot{width:10px;height:10px;border-radius:50%;background:var(--surface2);border:1.5px solid var(--border);}
+  .prayer-dot.done{background:var(--accent2);border-color:var(--accent);}
+  .prayer-dot.haid-dot{background:#FFB6C1;border-color:#FF69B4;}
+  .student-count{font-size:12px;color:var(--text3);white-space:nowrap;}
+  .empty-note{text-align:center;padding:40px 20px;color:var(--text3);font-size:14px;}
+  .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:9999;}
+  .modal-overlay.show{display:flex;}
+  .modal-card{background:var(--surface);border-radius:20px;padding:32px 24px;width:90%;max-width:320px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,0.2);}
+  .modal-overlay.show .modal-card{animation:slideUp .6s ease forwards;}
+  @keyframes slideUp{from{opacity:0;transform:translateY(40px);}to{opacity:1;transform:translateY(0);}}
+  .modal-icon{font-size:36px;background:#FFF0F5;width:68px;height:68px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
+  .modal-title{font-family:'DM Serif Display',serif;font-size:20px;color:var(--text);margin-bottom:8px;}
+  .modal-text{color:var(--text2);font-size:14px;margin-bottom:24px;line-height:1.5;}
+  .modal-actions{display:flex;flex-direction:column;gap:10px;}
+  .btn-modal{width:100%;padding:12px;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all .2s;}
+  .btn-pink{background:#FF69B4;color:white;}
+  .btn-pink:hover{background:#E0529C;}
+  .btn-outline{background:transparent;border:1.5px solid var(--border)!important;color:var(--text2);}
+  .btn-outline:hover{background:var(--surface2);color:var(--text);}
+
+  /* ── MODAL JAMAAH / MUNFARID ── */
+  .jamaah-choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+  .btn-jamaah-choice{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:5px;padding:16px 8px;border-radius:14px;border:2px solid var(--border);
+    background:var(--surface);cursor:pointer;font-family:'DM Sans',sans-serif;
+    transition:all .15s;-webkit-tap-highlight-color:transparent;
+  }
+  .btn-jamaah-choice:active{transform:scale(.95);}
+  .btn-jamaah-choice.opt-jamaah{border-color:#52B788;background:#F0FFF7;}
+  .btn-jamaah-choice.opt-jamaah:hover{background:#D8F3DC;border-color:#2D6A4F;}
+  .btn-jamaah-choice.opt-munfarid{border-color:#B7B7FF;background:#F4F4FF;}
+  .btn-jamaah-choice.opt-munfarid:hover{background:#E8E8FF;border-color:#7B7BFF;}
+  .bjc-icon{font-size:26px;line-height:1;}
+  .bjc-label{font-size:13px;font-weight:600;color:var(--text);}
+  .bjc-sub{font-size:10px;color:var(--text3);}
+
+  /* ── PRAYER CARD — ICON MODE ── */
+  /* Area kanan card: badge ikon jamaah/munfarid + label kecil */
+  .checkbox-right{display:flex;flex-direction:column;align-items:center;gap:3px;}
+  .prayer-mode-icon{font-size:20px;line-height:1;display:none;}
+  .prayer-card.checked .prayer-mode-icon,
+  .prayer-card.haid .prayer-mode-icon{display:block;}
+  .prayer-mode-label{font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;display:none;}
+  .prayer-card.checked .prayer-mode-label{display:block;color:var(--accent);}
+  .prayer-card.haid .prayer-mode-label{display:block;color:#FF69B4;}
+  #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:white;padding:12px 22px;border-radius:30px;font-size:14px;font-weight:500;opacity:0;transition:all .3s;z-index:9999;pointer-events:none;white-space:nowrap;}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .icon-subuh{background:#EEF2FF;}.icon-dhuha{background:#FEF3C7;}.icon-dzuhur{background:#FFFBEB;}
+  .icon-ashar{background:#FFF7ED;}.icon-maghrib{background:#FDF4FF;}.icon-isya{background:#EFF6FF;}
+  @media(max-width:480px){.login-card{padding:36px 24px;}.header{padding:12px 16px;}.main{padding:16px;}}
+</style>
+</head>
+<body>
+
+<div id="loading-screen">
+  <div class="splash-lottie" id="splash-lottie-wrap">
+    <!--
+      GANTI "src" di bawah dengan URL Lottie JSON pilihanmu dari LottieFiles.
+      Caranya: buka salah satu link berikut, klik tombol "Lottie JSON" / unduh,
+      lalu salin URL file .json / lottie.host yang muncul:
+        - https://lottiefiles.com/free-animation/faisal-mosque-9tRlJCX1th
+        - https://lottiefiles.com/free-animation/mosque-animation-0G5ZytIlNk
+        - https://lottiefiles.com/free-animations/crescent-moon
+      Kalau src kosong/gagal dimuat, fallback bulan-sabit CSS otomatis muncul.
+    -->
+    <dotlottie-player
+      id="splash-lottie"
+      src="https://lottie.host/4fa8b062-782c-4baf-bfc8-1dfe7e6887db/SOFTJRNQM3.json"
+      background="transparent"
+      speed="1"
+      loop
+      autoplay>
+    </dotlottie-player>
+    <div class="splash-fallback" id="splash-fallback">
+      <span class="star star1">✦</span>
+      <span class="star star2">✦</span>
+      <div class="moon"></div>
+    </div>
+  </div>
+  <div class="splash-brand">Absen Shalat</div>
+  <div class="splash-sub" id="loading-text">Menghubungkan ke database...</div>
+  <div class="splash-progress-wrap">
+    <div class="splash-progress-track">
+      <div class="splash-progress-fill" id="splash-progress-fill"></div>
+    </div>
+    <div class="splash-progress-pct" id="splash-progress-pct">0%</div>
+  </div>
+</div>
+
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-icon">🕌</div>
+    <h1 class="login-title">Absen Shalat</h1>
+    <p class="login-subtitle">Pilih kelas dan namamu untuk mulai mengabsen</p>
+    <label class="login-label" for="class-select">Kelas</label>
+    <select class="login-select" id="class-select">
+      <option value="">— Pilih kelas kamu —</option>
+    </select>
+    <label class="login-label" for="name-select">Nama Siswa</label>
+    <select class="login-select" id="name-select">
+      <option value="">— Pilih nama kamu —</option>
+    </select>
+    <button class="btn-primary" id="btn-login">Masuk →</button>
+  </div>
+</div>
+
+<div id="app">
+  <header class="header">
+    <span class="header-user" id="header-user">—</span>
+    <div class="header-actions">
+      <button class="btn-icon" id="tab-absen">Absen</button>
+      <button class="btn-icon" id="tab-dashboard">Rekap</button>
+    </div>
+  </header>
+
+  <div id="absen-view">
+    <div class="main">
+      <div class="date-bar">
+        <div>
+          <div class="date-day" id="day-name">—</div>
+          <div class="date-full" id="date-full">—</div>
+        </div>
+        <div class="streak-badge" id="streak-badge">🔥 0 hari</div>
+      </div>
+      <div class="progress-section">
+        <div class="progress-top">
+          <span class="progress-label">Shalat hari ini</span>
+          <span class="progress-count" id="progress-count">0 / 6</span>
+        </div>
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" id="progress-bar" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="section-title">Absen Shalat</div>
+      <div class="prayer-grid" id="prayer-grid"></div>
+    </div>
+  </div>
+
+  <div id="dashboard-view">
+    <div class="main">
+      <div class="section-title">Ringkasan per Waktu Shalat</div>
+      <div class="summary-grid" id="summary-grid"></div>
+      <div class="filter-row">
+        <button class="filter-btn active" id="filter-semua">Semua</button>
+        <button class="filter-btn" id="filter-sudah">✅ Sudah</button>
+        <button class="filter-btn" id="filter-belum">❌ Belum</button>
+      </div>
+      <div class="prayer-filter-row" id="prayer-filter-row"></div>
+      <div class="student-list" id="student-list"></div>
+    </div>
+  </div>
+</div>
+
+<div id="haid-modal" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-icon">🌸</div>
+    <h3 class="modal-title">Konfirmasi Kehadiran</h3>
+    <p class="modal-text">Apakah kamu sedang dalam masa halangan/haid saat ini?</p>
+    <div class="modal-actions">
+      <button class="btn-modal btn-pink" id="btn-haid-yes">Ya, Sedang Haid</button>
+      <button class="btn-modal btn-outline" id="btn-haid-no">Tidak, Absen Shalat</button>
+      <button class="btn-modal btn-outline" id="btn-haid-cancel" style="border:none!important;margin-top:-5px;">Batal</button>
+    </div>
+  </div>
+</div>
+
+<div id="confirm-modal" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-icon" style="background:#E0FFE5;">🕌</div>
+    <h3 class="modal-title">Konfirmasi Shalat</h3>
+    <p class="modal-text" id="confirm-modal-text">Apakah kamu benar-benar sudah sholat?</p>
+    <div class="modal-actions">
+      <button class="btn-modal btn-primary" id="btn-shalat-yes">Ya, Sudah Sholat</button>
+      <button class="btn-modal btn-outline" id="btn-shalat-cancel" style="border:none!important;margin-top:-5px;">Belum / Batal</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Jamaah / Munfarid -->
+<div id="jamaah-modal" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-icon" style="background:#E8F4FD;font-size:28px;">🕌</div>
+    <h3 class="modal-title" id="jamaah-modal-title">Shalat Subuh</h3>
+    <p class="modal-text">Shalat ini dikerjakan secara:</p>
+    <div class="jamaah-choices">
+      <button class="btn-jamaah-choice opt-jamaah" id="btn-pilih-jamaah">
+        <span class="bjc-icon">👥</span>
+        <span class="bjc-label">Jamaah</span>
+        <span class="bjc-sub">Berjamaah</span>
+      </button>
+      <button class="btn-jamaah-choice opt-munfarid" id="btn-pilih-munfarid">
+        <span class="bjc-icon">👤</span>
+        <span class="bjc-label">Munfarid</span>
+        <span class="bjc-sub">Sendiri</span>
+      </button>
+    </div>
+    <button class="btn-modal btn-outline" id="btn-jamaah-cancel" style="border:none!important;color:var(--text3);font-size:13px;">Batal</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script type="module">
+// ── FIREBASE IMPORT WITH FALLBACK ──
+// ES module + import './firebase.js' HANYA bisa jalan via HTTP/HTTPS server.
+// Saat dibuka via file://, seluruh blok ini akan throw SyntaxError/NetworkError
+// sebelum baris mana pun sempat jalan → semua event listener tidak terpasang.
+//
+// FIX: gunakan dynamic import() di dalam try/catch agar:
+// 1. Script TETAP jalan walau import gagal (event listener modal terpasang)
+// 2. Fallback stub Firebase disediakan sehingga tidak ada ReferenceError
+// 3. Pesan error yang jelas muncul di console + toast untuk user
+
+console.log('[AbsenShalat] Script loaded. Protocol:', location.protocol);
+
+// ── FIREBASE STUB (fallback saat file:// atau firebase.js tidak ditemukan) ──
+let db, doc, getDoc, setDoc, collection, getDocs, serverTimestamp, deleteField;
+
+// Stub yang aman: semua fungsi mengembalikan Promise.reject agar
+// try/catch di pemanggil tetap bekerja tanpa crash tak terduga
+function _makeStub(name) {
+  return (...args) => {
+    console.warn(`[Firebase Stub] ${name}() dipanggil tapi Firebase belum loaded.`);
+    return Promise.reject(new Error(`Firebase not available (${name})`));
+  };
+}
+db = null;
+doc          = _makeStub('doc');
+getDoc       = _makeStub('getDoc');
+setDoc       = _makeStub('setDoc');
+collection   = _makeStub('collection');
+getDocs      = _makeStub('getDocs');
+serverTimestamp = () => ({ _isServerTimestamp: true }); // stub ringan, tidak throw
+deleteField  = () => ({ _isDeleteField: true });
+
+// ── DETEKSI FILE:// ──
+const IS_FILE_PROTOCOL = location.protocol === 'file:';
+if (IS_FILE_PROTOCOL) {
+  console.warn(
+    '[AbsenShalat] ⚠️ Berjalan via file://. Firebase & fitur online TIDAK aktif.\n' +
+    'Gunakan HTTP server (npx serve, Quick Edit, Termux python -m http.server) untuk fitur penuh.'
+  );
+}
+
+// ── DYNAMIC IMPORT FIREBASE (hanya kalau bukan file://) ──
+let _firebaseReady = false;
+
+async function _loadFirebase() {
+  if (IS_FILE_PROTOCOL) {
+    console.log('[AbsenShalat] Skip Firebase import (file:// protocol).');
+    return false;
+  }
+  try {
+    console.log('[AbsenShalat] Mengimpor firebase.js...');
+    const fb = await import("./firebase.js");
+    // Assign ke variabel outer scope
+    db             = fb.db;
+    doc            = fb.doc;
+    getDoc         = fb.getDoc;
+    setDoc         = fb.setDoc;
+    collection     = fb.collection;
+    getDocs        = fb.getDocs;
+    serverTimestamp = fb.serverTimestamp;
+    deleteField    = fb.deleteField;
+    _firebaseReady = true;
+    console.log('[AbsenShalat] ✅ Firebase berhasil dimuat.');
+    return true;
+  } catch (e) {
+    console.error('[AbsenShalat] ❌ Gagal import firebase.js:', e.message);
+    return false;
+  }
+}
+
+// ── STATE ──
+let dbData = [];
+let STUDENTS = [];
+let FEMALE_IDS = new Set();
+let currentClass = "";
+let currentUser = null;
+let dashFilter = "semua";
+let dashPrayer = "all";
+let todayAbsenCache = {};
+let allAbsenCache = {};
+let currentAppDate = "";
+let _dayCheckInterval = null;
+let lastSaveTime = 0; // timestamp terakhir kali ada save (untuk guard race condition)
+
+let PRAYERS = [
+  { id:"subuh",   name:"Subuh",   hint:"–", icon:"🌙", cls:"icon-subuh",   startMins:0 },
+  { id:"dhuha",   name:"Dhuha",   hint:"–", icon:"🌞", cls:"icon-dhuha",   startMins:0 },
+  { id:"dzuhur",  name:"Dzuhur",  hint:"–", icon:"☀️", cls:"icon-dzuhur",  startMins:0 },
+  { id:"ashar",   name:"Ashar",   hint:"–", icon:"🌤️", cls:"icon-ashar",   startMins:0 },
+  { id:"maghrib", name:"Maghrib", hint:"–", icon:"🌅", cls:"icon-maghrib", startMins:0 },
+  { id:"isya",    name:"Isya",    hint:"–", icon:"⭐", cls:"icon-isya",    startMins:0 },
+];
+
+let _serverTimeCache = null;
+let _serverTimeFetch = null; // FIX: single-flight — cegah multiple fetch bersamaan
+
+async function getServerTimeMs() {
+  const now = Date.now();
+
+  // FIX: TTL diperpanjang ke 60 detik (dari 30 detik).
+  // Estimasi offset (delta antara server & lokal) + elapsed = server time saat ini.
+  // Ini lebih hemat bandwidth tanpa kehilangan akurasi yang signifikan.
+  if (_serverTimeCache && (now - _serverTimeCache.fetchedAtMs) < 60_000) {
+    return _serverTimeCache.serverMs + (now - _serverTimeCache.fetchedAtMs);
+  }
+
+  // FIX: Single-flight — kalau sudah ada fetch yang berjalan, tunggu itu saja.
+  // Tanpa ini, 2 fungsi yang memanggil getServerWIBMins() sekaligus
+  // akan trigger 2 request ke WorldTimeAPI secara bersamaan.
+  if (_serverTimeFetch) return _serverTimeFetch;
+
+  _serverTimeFetch = (async () => {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 5000); // timeout 5 detik
+      const response = await fetch('https://worldtimeapi.org/api/timezone/Asia/Jakarta', {
+        signal: controller.signal
+      });
+      clearTimeout(timeout);
+      if (!response.ok) throw new Error('API error');
+      const data = await response.json();
+      const serverMs = new Date(data.datetime).getTime();
+      _serverTimeCache = { serverMs, fetchedAtMs: Date.now() };
+      return serverMs;
+    } catch (e) {
+      // Offline atau timeout → gunakan jam lokal + offset dari cache terakhir
+      if (_serverTimeCache) {
+        // Estimasi dari cache lama: masih lebih baik dari jam lokal murni
+        const elapsed = Date.now() - _serverTimeCache.fetchedAtMs;
+        return _serverTimeCache.serverMs + elapsed;
+      }
+      return Date.now();
+    } finally {
+      _serverTimeFetch = null; // reset single-flight lock
+    }
+  })();
+
+  return _serverTimeFetch;
+}
+
+async function getServerWIBMins() {
+  const serverMs = await getServerTimeMs();
+  const wibDate = new Date(serverMs + 7 * 3600 * 1000); 
+  return wibDate.getUTCHours() * 60 + wibDate.getUTCMinutes();
+}
+
+async function getServerWIBDate() {
+  const serverMs = await getServerTimeMs();
+  const wibDate = new Date(serverMs + 7 * 3600 * 1000);
+  return wibDate.toISOString().slice(0, 10);
+}
+
+function today() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function toMins(t){ const [h,m]=t.split(':').map(Number); return h*60+m; }
+
+const KELAS_CACHE_KEY = 'kelasDbCache';
+const KELAS_CACHE_TTL = 60 * 60 * 1000; // 1 jam
+
+function getKelasCacheLocal() {
+  try {
+    const raw = localStorage.getItem(KELAS_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (Date.now() - parsed.savedAt > KELAS_CACHE_TTL) return null;
+    return parsed.data;
+  } catch { return null; }
+}
+
+function saveKelasCacheLocal(data) {
+  try {
+    localStorage.setItem(KELAS_CACHE_KEY, JSON.stringify({ data, savedAt: Date.now() }));
+  } catch(e) { console.warn("Gagal simpan kelas cache"); }
+}
+
+async function loadKelasDariFirestore() {
+  const localKelas = getKelasCacheLocal();
+  if (localKelas) {
+    dbData = localKelas;
+    populateClassSelect();
+    refreshKelasDariFirestore();
+    return true;
+  }
+  return await refreshKelasDariFirestore();
+}
+
+async function refreshKelasDariFirestore() {
+  try {
+    const snap = await getDocs(collection(db,"kelas"));
+    const newData = [];
+    for (const kelasDoc of snap.docs) {
+      const namaKelas = kelasDoc.id;
+      const siswaSnap = await getDocs(collection(db,"kelas",namaKelas,"siswa"));
+      const siswaList = [];
+      siswaSnap.forEach(s => siswaList.push({ id:s.id, ...s.data() }));
+      siswaList.sort((a,b) => a.nama.localeCompare(b.nama));
+      newData.push({ namaKelas, siswa: siswaList });
+    }
+    newData.sort((a,b) => a.namaKelas.localeCompare(b.namaKelas));
+    if (newData.length === 0) {
+      if (dbData.length === 0) { showToast("⚠️ Belum ada kelas."); return false; }
+      return true;
+    }
+    dbData = newData;
+    saveKelasCacheLocal(newData);
+    populateClassSelect();
+    return true;
+  } catch(e) {
+    if (dbData.length === 0) {
+      showToast("⚠️ Gagal memuat data kelas. Cek koneksi.");
+      return false;
+    }
+    return true;
+  }
+}
+
+function populateClassSelect() {
+  const sel = document.getElementById('class-select');
+  sel.innerHTML = '<option value="">— Pilih kelas kamu —</option>';
+  dbData.forEach(k => {
+    const opt = document.createElement('option');
+    opt.value = k.namaKelas; opt.textContent = k.namaKelas;
+    sel.appendChild(opt);
+  });
+}
+
+function handleClassChange() {
+  const cls = document.getElementById('class-select').value;
+  const nameSel = document.getElementById('name-select');
+  nameSel.innerHTML = '<option value="">— Pilih nama kamu —</option>';
+  if (!cls) { STUDENTS = []; FEMALE_IDS = new Set(); return; }
+  const target = dbData.find(k => k.namaKelas === cls);
+  if (!target) return;
+  currentClass = cls;
+  STUDENTS = target.siswa;
+  FEMALE_IDS = new Set(STUDENTS.filter(s => s.gender === 'perempuan').map(s => s.id));
+  STUDENTS.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s.id; opt.textContent = s.nama;
+    nameSel.appendChild(opt);
+  });
+}
+
+// ── PRAYER TIMES CACHE BULANAN (Super Cepat) ──
+function applyPrayerTimes(t) {
+  if (!t) return;
+  const pairs = [
+    {id:"subuh",  start:t.fajr,    end:t.sunrise},
+    {id:"dhuha",  start:"06:45",   end:"07:30"},
+    {id:"dzuhur", start:t.dhuhr,   end:t.asr},
+    {id:"ashar",  start:t.asr,     end:t.maghrib},
+    {id:"maghrib",start:t.maghrib, end:t.isha},
+    {id:"isya",   start:t.isha,    end:"23:59"},
+  ];
+  PRAYERS = PRAYERS.map(p => {
+    const pair = pairs.find(x => x.id===p.id);
+    return pair ? {...p, hint:`${pair.start} – ${pair.end}`, startMins:toMins(pair.start)} : p;
+  });
+}
+
+async function fetchPrayerTimes() {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = d.getMonth() + 1; // 1-12
+  const cacheKey = `prayerMonth_${year}_${month}`;
+
+  let monthData = null;
+
+  // 1. Cek Data Bulanan di Local Storage
+  try {
+    const raw = localStorage.getItem(cacheKey);
+    if (raw) monthData = JSON.parse(raw);
+  } catch(e) {}
+
+  // 2. Jika Kosong, Ambil Jadwal 1 Bulan Sekaligus dari API Aladhan
+  if (!monthData || !monthData[d.getDate()]) {
+    try {
+      const res = await fetch(`https://api.aladhan.com/v1/calendar?latitude=-7.6833&longitude=109.6500&method=11&month=${month}&year=${year}`);
+      const json = await res.json();
+      if (json && json.data) {
+        monthData = {};
+        json.data.forEach(day => {
+          const dayNum = parseInt(day.date.gregorian.day);
+          monthData[dayNum] = {
+            fajr: day.timings.Fajr.slice(0,5), sunrise: day.timings.Sunrise.slice(0,5),
+            dhuhr: day.timings.Dhuhr.slice(0,5), asr: day.timings.Asr.slice(0,5),
+            maghrib: day.timings.Maghrib.slice(0,5), isha: day.timings.Isha.slice(0,5)
+          };
+        });
+        localStorage.setItem(cacheKey, JSON.stringify(monthData)); // Simpan sebulan penuh
+      }
+    } catch(e) {
+      console.warn("Gagal fetch Aladhan API");
+    }
+  }
+
+  // 3. Terapkan jadwal hari ini
+  const todayNum = d.getDate();
+  if (monthData && monthData[todayNum]) {
+    applyPrayerTimes(monthData[todayNum]);
+  } else {
+    // FALLBACK STATIS: Jika API gagal dan internet mati, beri jam standar (agar tidak Strip "-")
+    applyPrayerTimes({
+      fajr:"04:30", sunrise:"05:45", dhuhr:"11:55", asr:"15:15", maghrib:"17:45", isha:"19:00"
+    });
+  }
+  renderPrayerGrid();
+}
+
+// ── ABSEN CACHE (localStorage) ──
+function getAbsenCacheKey(userId, date) { return `absenCache_${userId}_${date}`; }
+
+function getAbsenFromLocal(userId, date) {
+  try {
+    const raw = localStorage.getItem(getAbsenCacheKey(userId, date));
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+function saveAbsenToLocal(userId, date, data) {
+  try {
+    const { nama: _, ...absenOnly } = data;
+    localStorage.setItem(getAbsenCacheKey(userId, date), JSON.stringify(absenOnly));
+  } catch(e) {}
+}
+
+async function saveAbsenFS(userId, userName, date, data) {
+  const ref = doc(db, "absen", date, "siswa", userId);
+  
+  // Siapkan data dengan server timestamp
+  const saveData = {
+    nama: userName,
+    ...data,
+    _serverTs: serverTimestamp()   // untuk audit manipulasi waktu
+  };
+
+  await setDoc(ref, saveData, { merge: true });
+  
+  todayAbsenCache = { ...data };
+  if (!allAbsenCache[userId]) allAbsenCache[userId] = {};
+  allAbsenCache[userId][date] = todayAbsenCache;
+  saveAbsenToLocal(userId, date, data);
+}
+
+async function getStreakFS(userId) {
+  const snap = await getDoc(doc(db,"streak",userId));
+  if (!snap.exists()) return 0;
+  const { lastDate, count } = snap.data();
+  const todayStr = await getServerWIBDate().catch(() => today());
+  const yestDate = new Date(todayStr + 'T00:00:00');
+  yestDate.setDate(yestDate.getDate() - 1);
+  const yestStr = `${yestDate.getFullYear()}-${String(yestDate.getMonth()+1).padStart(2,'0')}-${String(yestDate.getDate()).padStart(2,'0')}`;
+  return (lastDate===todayStr || lastDate===yestStr) ? count : 0;
+}
+
+async function updateStreakFS(userId, date, absen) {
+  const snap = await getDoc(doc(db,"streak",userId));
+  const totalShalat = PRAYERS.filter(p => absen[p.id]).length;
+  if (totalShalat < 6) {
+    if (snap.exists()) {
+      const { lastDate, count } = snap.data();
+      if (lastDate===date) {
+        const yest = new Date(date); yest.setDate(yest.getDate()-1);
+        await setDoc(doc(db,"streak",userId), { lastDate:yest.toISOString().slice(0,10), count:Math.max(0,count-1) });
+      }
+    }
+    return;
+  }
+  let count = 1;
+  if (snap.exists()) {
+    const { lastDate, count:c } = snap.data();
+    const yest = new Date(date); yest.setDate(yest.getDate()-1);
+    if (lastDate===yest.toISOString().slice(0,10)) count=c+1;
+    else if (lastDate===date) count=c;
+  }
+  await setDoc(doc(db,"streak",userId), { lastDate:date, count });
+  try { localStorage.setItem(`streak_${userId}`, String(count)); } catch(e) {}
+}
+
+async function prefetchAllAbsen(dates) {
+  allAbsenCache = {};
+  for (const date of dates) {
+    const snap = await getDocs(collection(db,"absen",date,"siswa"));
+    snap.forEach(d => {
+      if (!allAbsenCache[d.id]) allAbsenCache[d.id] = {};
+      allAbsenCache[d.id][date] = d.data();
+    });
+    STUDENTS.forEach(s => {
+      if (!allAbsenCache[s.id]) allAbsenCache[s.id] = {};
+      if (!allAbsenCache[s.id][date]) allAbsenCache[s.id][date] = {};
+    });
+  }
+}
+
+function doLogin() {
+  const cls    = document.getElementById('class-select').value;
+  const userId = document.getElementById('name-select').value;
+  if (!cls)    { showToast("Pilih kelas dulu ya!"); return; }
+  if (!userId) { showToast("Pilih nama dulu ya!"); return; }
+  const siswa = STUDENTS.find(s => s.id === userId);
+  if (!siswa)  { showToast("Siswa tidak ditemukan"); return; }
+  localStorage.setItem('savedUserId',   siswa.id);
+  localStorage.setItem('savedUserNama', siswa.nama);
+  localStorage.setItem('savedClass',    cls);
+  startApp(siswa);
+}
+
+async function startApp(siswa) {
+  if (_dayCheckInterval) { clearInterval(_dayCheckInterval); _dayCheckInterval = null; }
+  currentUser = siswa;
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('header-user').textContent = siswa.nama;
+  todayAbsenCache={}; allAbsenCache={};
+
+  const serverDate = await getServerWIBDate().catch(() => today());
+  currentAppDate = serverDate;
+
+  // FIX: Proses offline queue saat app start dan sudah online
+  if (navigator.onLine) {
+    setTimeout(processOfflineQueue, 2000); // delay 2s agar app sudah fully loaded
+  }
+
+  // Load Absen Lokal Dulu (Instan)
+  const localAbsen = getAbsenFromLocal(siswa.id, serverDate);
+  if (localAbsen !== null) todayAbsenCache = localAbsen;
+
+  // Render UI awal (Cepat)
+  renderDateBar();
+  renderPrayerGrid();
+  showView('absen');
+
+  // Sync Data Jadwal Shalat (Bulan Penuh)
+  fetchPrayerTimes();
+
+  // Sync Data Absen Terbaru (Background)
+  // PENTING: getDoc ini tidak di-await, jadi bisa selesai SETELAH user sudah
+  // toggle shalat (lihat _persistPrayer). Tanpa guard, hasil getDoc yang basi
+  // (snapshot sebelum toggle) bisa menimpa balik todayAbsenCache yang sudah
+  // benar -> efeknya terlihat seperti "uncheck tidak tersimpan". savingPrayers
+  // dipakai sebagai sinyal "ada write yang sedang berlangsung, jangan timpa".
+  getDoc(doc(db,"absen",serverDate,"siswa",siswa.id))
+    .then(snap => {
+      if (savingPrayers.size > 0) return; // ada toggle yang masih diproses, skip sync ini
+      if (Date.now() - lastSaveTime < 10_000) return; // ada save baru-baru ini, skip sync agar tidak timpa data fresh
+      const fsData = snap.exists() ? snap.data() : {};
+      const { nama: _, ...fsAbsen } = fsData;
+      const localStr = JSON.stringify(todayAbsenCache);
+      const fsStr = JSON.stringify(fsAbsen);
+      if (localStr !== fsStr) {
+        todayAbsenCache = fsAbsen;
+        saveAbsenToLocal(siswa.id, serverDate, fsAbsen);
+        if (!allAbsenCache[siswa.id]) allAbsenCache[siswa.id] = {};
+        allAbsenCache[siswa.id][serverDate] = fsAbsen;
+        renderPrayerGrid();
+      }
+    })
+    .catch(e => console.warn("Background sync absen gagal:", e));
+
+  // Update streak (background)
+  getStreakFS(siswa.id)
+    .then(streak => {
+      document.getElementById('streak-badge').textContent = `🔥 ${streak} hari`;
+    })
+    .catch(() => {});
+}
+
+function renderDateBar() {
+  const d=new Date();
+  const days=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+  const months=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  document.getElementById('day-name').textContent=days[d.getDay()];
+  document.getElementById('date-full').textContent=`${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+  
+  const localStreak = parseInt(localStorage.getItem(`streak_${currentUser?.id}`)||'0');
+  document.getElementById('streak-badge').textContent=`🔥 ${localStreak} hari`;
+  if (currentUser?.id) {
+    getStreakFS(currentUser.id)
+      .then(streak => {
+        localStorage.setItem(`streak_${currentUser.id}`, String(streak));
+        document.getElementById('streak-badge').textContent=`🔥 ${streak} hari`;
+      })
+      .catch(() => {});
+  }
+}
+
+function renderPrayerGrid() {
+  const grid=document.getElementById('prayer-grid');
+  grid.innerHTML='';
+  let checked=0;
+  PRAYERS.forEach(p => {
+    const val=todayAbsenCache[p.id];
+    const done=!!val;
+    const isHaid=val==='haid';
+    if(done) checked++;
+
+    const card=document.createElement('div');
+    let cardCls='prayer-card';
+    if(done) cardCls+=(isHaid?' haid':' checked');
+    card.className=cardCls;
+    card.id='card-'+p.id;
+    card.onclick=()=>togglePrayer(p.id);
+
+    // Tentukan icon & label mode shalat
+    let modeIcon='';
+    let modeLabel='';
+    if(isHaid){
+      modeIcon='🌸'; modeLabel='HAID';
+    } else if(val==='jamaah'){
+      modeIcon='👥'; modeLabel='JAMAAH';
+    } else if(val==='munfarid'){
+      modeIcon='👤'; modeLabel='MUNFARID';
+    } else if(val===true || val==='true'){
+      // Data lama (sebelum fitur jamaah/munfarid) — tampilkan centang biasa
+      modeIcon='✅'; modeLabel='SELESAI';
+    }
+
+    card.innerHTML=`
+      <div class="prayer-left">
+        <div class="prayer-time-icon ${p.cls}">${p.icon}</div>
+        <div class="prayer-info">
+          <div class="prayer-name">${p.name}</div>
+          <div class="prayer-time-hint">${p.hint}</div>
+        </div>
+      </div>
+      <div class="checkbox-right">
+        <div class="prayer-mode-icon">${modeIcon}</div>
+        <div class="prayer-mode-label">${modeLabel}</div>
+      </div>`;
+    grid.appendChild(card);
+  });
+  updateProgress(checked);
+}
+
+let pendingPrayerId=null;
+let savingPrayers = new Set(); // lock per-prayer, bukan lock global
+
+async function togglePrayer(prayerId) {
+  if (savingPrayers.has(prayerId)) { showToast("⏳ Sedang menyimpan, tunggu sebentar..."); return; }
+  const wasDone = !!todayAbsenCache[prayerId];
+  const pc = PRAYERS.find(x => x.id === prayerId);
+
+  if (!wasDone) {
+    // Validasi waktu shalat
+    if (pc.startMins > 0) {
+      let nowMins = await getServerWIBMins();
+      if (nowMins < pc.startMins) {
+        showToast(`❌ Belum masuk waktu ${pc.name}! Mulai ${pc.hint.split(' – ')[0]}`);
+        return;
+      }
+    }
+
+    // Siswa perempuan → tanya haid dulu
+    // Kalau jawab "Ya, Haid" → langsung 'haid', tidak perlu pilih jamaah/munfarid
+    // Kalau jawab "Tidak" → lanjut ke modal jamaah/munfarid
+    if (FEMALE_IDS.has(currentUser.id)) {
+      pendingPrayerId = prayerId;
+      document.getElementById('haid-modal').classList.add('show');
+      return;
+    }
+
+    // Laki-laki atau status tidak haid → langsung modal jamaah/munfarid
+    openJamaahModal(prayerId, pc.name);
+
+  } else {
+    // Sudah tercentang → uncheck (hapus)
+    finalizePrayerToggle(prayerId, false);
+  }
+}
+
+// Buka modal jamaah/munfarid
+function openJamaahModal(prayerId, prayerName) {
+  pendingPrayerId = prayerId;
+  document.getElementById('jamaah-modal-title').textContent = prayerName;
+  // Update ikon di modal sesuai shalat (opsional, pakai default 🕌)
+  document.getElementById('jamaah-modal').classList.add('show');
+}
+
+function closeHaidModal() {
+  document.getElementById('haid-modal').classList.remove('show');
+  pendingPrayerId = null;
+}
+function closeConfirmModal() {
+  document.getElementById('confirm-modal').classList.remove('show');
+  pendingPrayerId = null;
+}
+function closeJamaahModal() {
+  document.getElementById('jamaah-modal').classList.remove('show');
+  pendingPrayerId = null;
+}
+
+// Haid modal: kalau jawab "Ya Haid" → langsung simpan 'haid'
+// Kalau "Tidak" → lanjut ke modal jamaah/munfarid
+function confirmHaid(isHaid) {
+  if (!pendingPrayerId) return;
+  const pid = pendingPrayerId;
+  const pc  = PRAYERS.find(x => x.id === pid);
+  closeHaidModal();
+  if (isHaid) {
+    finalizePrayerToggle(pid, 'haid');
+  } else {
+    // Tidak haid → tanya jamaah/munfarid
+    openJamaahModal(pid, pc.name);
+  }
+}
+
+// Jamaah modal: pilih mode
+function confirmJamaah(mode) {
+  // mode: 'jamaah' | 'munfarid'
+  if (!pendingPrayerId) return;
+  const pid = pendingPrayerId;
+  closeJamaahModal();
+  finalizePrayerToggle(pid, mode);
+}
+
+function confirmShalat() { if(pendingPrayerId) finalizePrayerToggle(pendingPrayerId, true); closeConfirmModal(); }
+
+function finalizePrayerToggle(prayerId, newValue) {
+  // CATATAN PENTING: fungsi ini SENGAJA tidak di-await dari pemanggilnya.
+  // UI (optimistic update) langsung berubah duluan di bagian sinkron di bawah,
+  // baru setelah itu proses validasi waktu + simpan ke Firestore jalan di
+  // background lewat _persistPrayer(). Jadi tap berikutnya tidak nunggu.
+
+  const absen = {...todayAbsenCache};
+  if (newValue === false) delete absen[prayerId];
+  else absen[prayerId] = newValue;
+  const { nama: _, ...absenData } = absen;
+
+  // Optimistic UI Update — berubah seketika, sebelum data selesai disimpan.
+  todayAbsenCache = absenData;
+
+  // FIX race condition: Gunakan currentAppDate yang sudah diset saat startApp,
+  // bukan panggil getServerWIBDate() ulang di dalam _persistPrayer.
+  // Ini cegah kemungkinan date berganti di tengah proses persist.
+  const dateStr = currentAppDate;
+
+  if (currentUser?.id && dateStr) saveAbsenToLocal(currentUser.id, dateStr, absenData);
+  lastSaveTime = Date.now();
+  renderPrayerGrid();
+
+  savingPrayers.add(prayerId);
+  _persistPrayer(prayerId, newValue, absenData, dateStr)
+    .finally(() => savingPrayers.delete(prayerId));
+}
+
+// FIX: dateStr di-pass dari finalizePrayerToggle agar konsisten dan tidak
+// ada kemungkinan date berubah di tengah proses (misal pas tengah malam).
+async function _persistPrayer(prayerId, newValue, absenData, dateStr) {
+  try {
+    if (newValue !== false) {
+      const pc = PRAYERS.find(p => p.id === prayerId);
+      // Skip validasi waktu untuk haid (tidak shalat)
+      // 'jamaah' dan 'munfarid' = shalat sungguhan, tetap perlu validasi waktu
+      const skipTimeCheck = newValue === 'haid';
+      if (pc && pc.startMins > 0 && !skipTimeCheck) {
+        let nowMins = await getServerWIBMins();
+        if (nowMins < pc.startMins - 10) {
+          const reverted = {...todayAbsenCache};
+          delete reverted[prayerId];
+          todayAbsenCache = reverted;
+          if (currentUser?.id && dateStr)
+            saveAbsenToLocal(currentUser.id, dateStr, reverted);
+          renderPrayerGrid();
+          showToast(`❌ Waktu ${pc.name} belum tiba.`);
+          return;
+        }
+      }
+    }
+
+    // dateStr sudah di-pass, tidak perlu fetch ulang (hemat 1 network call)
+
+    const ref = doc(db, "absen", dateStr, "siswa", currentUser.id);
+
+    if (newValue === false) {
+      await setDoc(ref, {
+        nama: currentUser.nama,
+        [prayerId]: deleteField(),
+        _serverTs: serverTimestamp()
+      }, { merge: true });
+    } else {
+      await setDoc(ref, {
+        nama: currentUser.nama,
+        [prayerId]: newValue,
+        _serverTs: serverTimestamp()
+      }, { merge: true });
+    }
+
+    // Update local cache juga
+    if (!allAbsenCache[currentUser.id]) allAbsenCache[currentUser.id] = {};
+    allAbsenCache[currentUser.id][dateStr] = { ...absenData };
+
+    await updateStreakFS(currentUser.id, dateStr, absenData);
+    renderDateBar();
+
+    if (newValue !== false) {
+      showToast(newValue === 'haid' ? "🌸 Status Haid tercatat!" : "✅ Alhamdulillah, shalat tercatat!");
+    } else {
+      showToast("✅ Absen berhasil dibatalkan");
+    }
+
+  } catch (e) {
+    console.error("Error _persistPrayer:", e);
+    // FIX: Kalau offline, simpan ke queue untuk di-retry saat online
+    if (!navigator.onLine || e.code === 'unavailable') {
+      addToOfflineQueue({
+        prayerId,
+        newValue,
+        dateStr,
+        userId: currentUser.id,
+        userName: currentUser.nama,
+        savedAt: Date.now()
+      });
+      showToast("📵 Offline — akan disinkron saat online kembali.");
+    } else {
+      showToast("⚠️ Gagal menyimpan ke server. Coba lagi.");
+    }
+  }
+}
+
+function updateProgress(checked) {
+  document.getElementById('progress-count').textContent=`${checked} / 6`;
+  document.getElementById('progress-bar').style.width=`${checked/6*100}%`;
+}
+
+function showView(view) {
+  document.getElementById('absen-view').style.display    =view==='absen'?'block':'none';
+  document.getElementById('dashboard-view').style.display=view==='dashboard'?'block':'none';
+  document.getElementById('tab-absen').className    ='btn-icon'+(view==='absen'?' active':'');
+  document.getElementById('tab-dashboard').className='btn-icon'+(view==='dashboard'?' active':'');
+  if (view==='dashboard') loadDashboard();
+}
+
+async function loadDashboard() {
+  showToast("⏳ Memuat data rekap...");
+  allAbsenCache={};
+  const serverDate = await getServerWIBDate().catch(() => today());
+  await prefetchAllAbsen([serverDate]);
+  renderDashboard(serverDate);
+}
+
+function setFilter(f,btn) {
+  dashFilter=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderStudentList();
+}
+function setPrayerFilter(p,btn) {
+  dashPrayer=p;
+  document.querySelectorAll('.prayer-filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderStudentList();
+}
+
+function renderDashboard(serverDate) {
+  const todayStr = serverDate || today();
+  const summaryGrid=document.getElementById('summary-grid');
+  summaryGrid.innerHTML='';
+  PRAYERS.forEach(p => {
+    const cnt=STUDENTS.filter(s=>!!(allAbsenCache[s.id]?.[todayStr]?.[p.id])).length;
+    const card=document.createElement('div');
+    card.className='summary-card';
+    card.innerHTML=`<div class="summary-card-name">${p.icon} ${p.name}</div><div class="summary-card-nums">${cnt}</div><div class="summary-card-sub">dari ${STUDENTS.length}</div>`;
+    summaryGrid.appendChild(card);
+  });
+  const pfRow=document.getElementById('prayer-filter-row');
+  pfRow.innerHTML='';
+  const allBtn=document.createElement('button');
+  allBtn.className='prayer-filter-btn'+(dashPrayer==='all'?' active':'');
+  allBtn.textContent='Semua Shalat';
+  allBtn.onclick=()=>setPrayerFilter('all',allBtn);
+  pfRow.appendChild(allBtn);
+  PRAYERS.forEach(p => {
+    const btn=document.createElement('button');
+    btn.className='prayer-filter-btn'+(dashPrayer===p.id?' active':'');
+    btn.textContent=p.icon+' '+p.name;
+    btn.onclick=()=>setPrayerFilter(p.id,btn);
+    pfRow.appendChild(btn);
+  });
+  renderStudentList();
+}
+
+function renderStudentList() {
+  const todayStr = currentAppDate || today();
+  const list=document.getElementById('student-list');
+  list.innerHTML='';
+  let filtered=STUDENTS.map((s,i) => {
+    const ab=allAbsenCache[s.id]?.[todayStr]||{};
+    const count=PRAYERS.filter(p=>!!ab[p.id]).length;
+    return {id:s.id,nama:s.nama,ab,count,idx:i+1};
+  });
+  if (dashFilter==='sudah') filtered=dashPrayer==='all'?filtered.filter(s=>s.count===6):filtered.filter(s=>!!s.ab[dashPrayer]);
+  else if (dashFilter==='belum') filtered=dashPrayer==='all'?filtered.filter(s=>s.count<6):filtered.filter(s=>!s.ab[dashPrayer]);
+  else if (dashPrayer!=='all') filtered.sort((a,b)=>(!!b.ab[dashPrayer])-(!!a.ab[dashPrayer]));
+  if (!filtered.length) { list.innerHTML='<div class="empty-note">Tidak ada siswa di kategori ini.</div>'; return; }
+  filtered.forEach(s => {
+    const row=document.createElement('div');
+    row.className='student-row';
+    const dots=PRAYERS.map(p => {
+      const val=s.ab[p.id],done=!!val,isHaid=val==='haid';
+      const highlight=dashPrayer!=='all'&&dashPrayer===p.id;
+      let cls='prayer-dot'; if(done) cls+=isHaid?' haid-dot':' done';
+      return `<div class="${cls}" title="${p.name}: ${isHaid?'🌸':done?'✅':'❌'}" style="${highlight?'width:14px;height:14px;':''}"></div>`;
+    }).join('');
+    row.innerHTML=`<div class="student-number">${s.idx}</div><div class="student-name">${s.nama}</div><div class="prayer-dots">${dots}</div><div class="student-count">${s.count}/6</div>`;
+    list.appendChild(row);
+  });
+}
+
+let toastTimer;
+function showToast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// ── EVENT LISTENERS ──
+// Dipasang secara eksplisit dengan guard getElementById + console.log debug
+// agar mudah dideteksi kalau ada element yang missing di DOM.
+// PENTING: bagian ini jalan TERLEPAS dari apakah Firebase berhasil load atau tidak,
+// karena semua fungsi modal (open/close) tidak butuh Firebase sama sekali.
+
+(function attachAllListeners() {
+  // Helper: pasang listener dengan guard null-check + debug log
+  function on(id, event, fn, description) {
+    const el = document.getElementById(id);
+    if (!el) {
+      console.error(`[Listener] ❌ Element tidak ditemukan: #${id} (${description})`);
+      return;
+    }
+    el.addEventListener(event, fn);
+    console.log(`[Listener] ✅ #${id} → ${description}`);
+  }
+
+  // Login & navigasi
+  on('class-select',    'change', handleClassChange,          'ganti kelas');
+  on('btn-login',       'click',  doLogin,                    'login');
+  on('tab-absen',       'click',  ()=>showView('absen'),      'tab absen');
+  on('tab-dashboard',   'click',  ()=>showView('dashboard'),  'tab dashboard');
+
+  // Filter dashboard
+  on('filter-semua', 'click', function(){ setFilter('semua',this); }, 'filter semua');
+  on('filter-sudah', 'click', function(){ setFilter('sudah',this); }, 'filter sudah');
+  on('filter-belum', 'click', function(){ setFilter('belum',this); }, 'filter belum');
+
+  // ── MODAL HAID ──
+  on('btn-haid-yes',    'click', ()=>confirmHaid(true),  'haid: ya');
+  on('btn-haid-no',     'click', ()=>confirmHaid(false), 'haid: tidak');
+  on('btn-haid-cancel', 'click', closeHaidModal,         'haid: batal');
+  // Tutup haid modal via klik overlay
+  (function() {
+    const el = document.getElementById('haid-modal');
+    if (el) el.addEventListener('click', e => { if (e.target === el) closeHaidModal(); });
+  })();
+
+  // ── MODAL KONFIRMASI SHALAT (legacy) ──
+  on('btn-shalat-yes',    'click', confirmShalat,      'konfirmasi: ya shalat');
+  on('btn-shalat-cancel', 'click', closeConfirmModal,  'konfirmasi: batal');
+  (function() {
+    const el = document.getElementById('confirm-modal');
+    if (el) el.addEventListener('click', e => { if (e.target === el) closeConfirmModal(); });
+  })();
+
+  // ── MODAL JAMAAH / MUNFARID ──
+  // Ini bagian yang bermasalah → beri log paling jelas
+  console.log('[Listener] Memasang listener jamaah-modal...');
+  on('btn-pilih-jamaah',   'click', ()=>{
+    console.log('[Modal] btn-pilih-jamaah diklik, pendingPrayerId=', pendingPrayerId);
+    confirmJamaah('jamaah');
+  }, 'jamaah: pilih jamaah');
+  on('btn-pilih-munfarid', 'click', ()=>{
+    console.log('[Modal] btn-pilih-munfarid diklik, pendingPrayerId=', pendingPrayerId);
+    confirmJamaah('munfarid');
+  }, 'jamaah: pilih munfarid');
+  on('btn-jamaah-cancel',  'click', ()=>{
+    console.log('[Modal] btn-jamaah-cancel diklik');
+    closeJamaahModal();
+  }, 'jamaah: batal');
+  // Tutup jamaah modal via klik overlay
+  (function() {
+    const el = document.getElementById('jamaah-modal');
+    if (!el) {
+      console.error('[Listener] ❌ jamaah-modal tidak ditemukan di DOM! Modal tidak akan bisa ditutup.');
+      return;
+    }
+    el.addEventListener('click', e => {
+      if (e.target === el) {
+        console.log('[Modal] Overlay jamaah-modal diklik → tutup modal');
+        closeJamaahModal();
+      }
+    });
+    console.log('[Listener] ✅ jamaah-modal overlay listener terpasang');
+  })();
+
+  console.log('[AbsenShalat] Semua event listener berhasil dipasang ✅');
+})();
+
+function setSplashProgress(pct, label) {
+  const fill = document.getElementById('splash-progress-fill');
+  const pctEl = document.getElementById('splash-progress-pct');
+  const textEl = document.getElementById('loading-text');
+  if (fill) fill.style.width = pct + '%';
+  if (pctEl) pctEl.textContent = pct + '%';
+  if (textEl && label) textEl.textContent = label;
+}
+
+function hideSplashScreen() {
+  const screen = document.getElementById('loading-screen');
+  if (!screen) return;
+  screen.classList.add('fade-out');
+  setTimeout(() => { screen.style.display = 'none'; }, 550);
+}
+
+async function initializeAppSystem() {
+  // ── TAHAP 0: Load Firebase dulu sebelum apapun ──
+  setSplashProgress(5, 'Memuat modul Firebase...');
+  const firebaseOk = await _loadFirebase();
+
+  if (!firebaseOk) {
+    // Firebase gagal → tampilkan pesan jelas, tapi tetap tunjukkan UI login
+    // agar developer bisa cek apakah HTML/CSS/modal sudah benar
+    setSplashProgress(100, IS_FILE_PROTOCOL
+      ? '⚠️ Mode file:// — Firebase tidak aktif'
+      : '❌ Gagal load Firebase');
+    console.warn('[AbsenShalat] Melanjutkan tanpa Firebase. Mode offline/preview.');
+    hideSplashScreen();
+    document.getElementById('login-screen').style.display = 'flex';
+    showToast(IS_FILE_PROTOCOL
+      ? '⚠️ Buka via HTTP server untuk fitur penuh'
+      : '❌ Firebase gagal dimuat. Cek firebase.js');
+    return; // stop di sini — jangan lanjut init yang butuh Firestore
+  }
+
+  // Tahap 1: cek cache lokal (instan)
+  setSplashProgress(10, 'Memeriksa data lokal...');
+  const hasLocalCache = !!getKelasCacheLocal();
+
+  // Tahap 2: mulai sinkronisasi/fetch ke Firestore
+  setSplashProgress(hasLocalCache ? 55 : 35,
+    hasLocalCache ? 'Memuat dari cache...' : 'Menghubungkan ke database...');
+
+  const isLoaded = await loadKelasDariFirestore();
+
+  // Tahap 3: data kelas selesai dimuat
+  setSplashProgress(90, 'Menyiapkan tampilan...');
+
+  if (!isLoaded) {
+    setSplashProgress(100, 'Gagal memuat data');
+    hideSplashScreen();
+    return;
+  }
+
+  const savedId   = localStorage.getItem('savedUserId');
+  const savedNama = localStorage.getItem('savedUserNama');
+  const savedCls  = localStorage.getItem('savedClass');
+
+  if (savedId && savedNama && savedCls) {
+    const kelasData = dbData.find(k => k.namaKelas === savedCls);
+    if (kelasData) {
+      document.getElementById('class-select').value = savedCls;
+      handleClassChange();
+      const siswa = STUDENTS.find(s => s.id === savedId);
+      if (siswa) {
+        setSplashProgress(100, 'Siap!');
+        hideSplashScreen();
+        startApp(siswa);
+        if (_dayCheckInterval) clearInterval(_dayCheckInterval);
+        _dayCheckInterval = setInterval(async () => {
+          _serverTimeCache = null;
+          const serverDate = await getServerWIBDate().catch(() => today());
+          if (serverDate !== currentAppDate) {
+            showToast("📅 Hari berganti. Memperbarui...");
+            clearInterval(_dayCheckInterval);
+            _dayCheckInterval = null;
+            startApp(siswa);
+          }
+        }, 10000);
+        return;
+      }
+    }
+    localStorage.removeItem('savedUserId');
+    localStorage.removeItem('savedUserNama');
+    localStorage.removeItem('savedClass');
+  }
+  setSplashProgress(100, 'Siap!');
+  hideSplashScreen();
+  document.getElementById('login-screen').style.display='flex';
+}
+
+// ── OFFLINE QUEUE ──
+// FIX: Sistem antrian offline yang lebih robust.
+// Saat offline, toggle disimpan ke queue di localStorage.
+// Saat online kembali, queue diproses ulang ke Firestore.
+const OFFLINE_QUEUE_KEY = 'absenOfflineQueue';
+
+function getOfflineQueue() {
+  try { return JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]'); }
+  catch { return []; }
+}
+
+function addToOfflineQueue(entry) {
+  const queue = getOfflineQueue();
+  // Kalau entry untuk prayerId + date yang sama sudah ada, timpa saja
+  const idx = queue.findIndex(q => q.prayerId === entry.prayerId && q.dateStr === entry.dateStr);
+  if (idx >= 0) queue[idx] = entry;
+  else queue.push(entry);
+  try { localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue)); }
+  catch (e) { console.warn('Gagal simpan offline queue'); }
+}
+
+function removeFromOfflineQueue(prayerId, dateStr) {
+  const queue = getOfflineQueue().filter(q => !(q.prayerId === prayerId && q.dateStr === dateStr));
+  try { localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue)); }
+  catch (e) {}
+}
+
+async function processOfflineQueue() {
+  const queue = getOfflineQueue();
+  if (!queue.length) return;
+  if (!navigator.onLine) return;
+
+  console.log(`[Queue] Memproses ${queue.length} item offline...`);
+  for (const entry of queue) {
+    try {
+      const ref = doc(db, "absen", entry.dateStr, "siswa", entry.userId);
+      if (entry.newValue === false) {
+        await setDoc(ref, {
+          nama: entry.userName,
+          [entry.prayerId]: deleteField(),
+          _serverTs: serverTimestamp()
+        }, { merge: true });
+      } else {
+        await setDoc(ref, {
+          nama: entry.userName,
+          [entry.prayerId]: entry.newValue,
+          _serverTs: serverTimestamp()
+        }, { merge: true });
+      }
+      removeFromOfflineQueue(entry.prayerId, entry.dateStr);
+      console.log(`[Queue] Berhasil sync: ${entry.prayerId} ${entry.dateStr}`);
+    } catch (e) {
+      console.warn(`[Queue] Gagal sync ${entry.prayerId}:`, e.message);
+    }
+  }
+  const remaining = getOfflineQueue().length;
+  if (remaining === 0) showToast("✅ Data offline berhasil disinkronkan!");
+  else showToast(`⚠️ ${remaining} item gagal sync, akan dicoba lagi.`);
+}
+
+// Jalankan processOfflineQueue saat koneksi kembali
+window.addEventListener('online', () => {
+  showToast("🌐 Koneksi kembali! Menyinkronkan data...");
+  setTimeout(processOfflineQueue, 1500);
+});
+
+// ── END OFFLINE QUEUE ──
+
+// Tampilkan fallback CSS (bulan sabit) jika src Lottie kosong atau gagal dimuat,
+// supaya splash screen tetap terlihat bagus walau animasi Lottie belum dipasang
+// atau koneksi ke CDN lottie gagal.
+(function initSplashFallback() {
+  const player   = document.getElementById('splash-lottie');
+  const fallback = document.getElementById('splash-fallback');
+  if (!player || !fallback) return;
+
+  const showFallback = () => {
+    player.style.display = 'none';
+    fallback.classList.add('show');
+  };
+
+  const src = player.getAttribute('src');
+  if (!src || src.trim() === '') {
+    showFallback();
+    return;
+  }
+  player.addEventListener('error', showFallback);
+  // Jika custom element dotlottie-player belum ter-load (mis. CDN gagal),
+  // browser akan render <dotlottie-player> sebagai elemen kosong tanpa dimensi.
+  setTimeout(() => {
+    if (player.offsetWidth === 0 && player.offsetHeight === 0) showFallback();
+  }, 2000);
+})();
+
+// Jalankan system init setelah semua listener terpasang
+// (listener dipasang synchronously oleh attachAllListeners() di atas,
+//  jadi urutan ini aman — tidak ada race condition)
+initializeAppSystem().catch(e => {
+  console.error('[AbsenShalat] initializeAppSystem error:', e);
+});
+
+// Service worker hanya bisa diregistrasi via HTTPS atau localhost,
+// TIDAK bisa via file:// → skip kalau protokolnya bukan http/https
+if ('serviceWorker' in navigator && !IS_FILE_PROTOCOL) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => {
+        console.log('✅ Service Worker Registered successfully');
+      })
+      .catch(err => {
+        console.log('❌ Service Worker registration failed:', err);
+      });
+  });
+} else if (IS_FILE_PROTOCOL) {
+  console.log('[AbsenShalat] Service Worker dilewati (file:// tidak support SW)');
+}
+</script>
+</body>
+</html>

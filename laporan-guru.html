@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laporan Absen Shalat</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F7F5F0;--surface:#FFFFFF;--surface2:#F0EDE6;
+    --accent:#2D6A4F;--accent2:#52B788;--accent3:#B7E4C7;
+    --text:#1A1A1A;--text2:#5C5C5C;--text3:#9E9E9E;
+    --border:#E0DDD6;--danger:#D90429;--radius:12px;
+    --jamaah:#2D6A4F;--jamaah-bg:#F0FFF7;
+    --munfarid:#5B5BD6;--munfarid-bg:#F4F4FF;
+    --haid:#E0529C;--haid-bg:#FFF0F9;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);padding:24px;font-size:14px;}
+  .container{max-width:1100px;margin:0 auto;background:var(--surface);border-radius:var(--radius);padding:30px;box-shadow:0 4px 20px rgba(0,0,0,0.05);}
+
+  /* ── HEADER ── */
+  .page-header{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid var(--border);padding-bottom:16px;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
+  .page-header h1{font-family:'DM Serif Display',serif;color:var(--accent);font-size:28px;margin-bottom:4px;}
+  .page-header p{color:var(--text2);font-size:13px;}
+
+  /* ── LEGEND ── */
+  .legend{display:flex;gap:12px;flex-wrap:wrap;align-items:center;background:var(--surface2);border-radius:10px;padding:10px 14px;margin-bottom:18px;font-size:12px;color:var(--text2);}
+  .legend-title{font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-size:10px;margin-right:4px;}
+  .legend-item{display:flex;align-items:center;gap:5px;white-space:nowrap;}
+  .legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .ld-jamaah{background:var(--jamaah);}
+  .ld-munfarid{background:var(--munfarid);}
+  .ld-haid{background:var(--haid);}
+  .ld-miss{background:#E0DDD6;}
+
+  /* ── TABS & CONTROLS ── */
+  .mode-tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+  .mode-tab{padding:9px 20px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;transition:all .18s;}
+  .mode-tab.active{background:var(--accent);border-color:var(--accent);color:white;}
+  .period-controls{display:flex;gap:8px;align-items:center;margin-bottom:20px;flex-wrap:wrap;}
+  .period-btn{padding:7px 12px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .18s;white-space:nowrap;}
+  .period-btn:hover{background:var(--surface2);}
+  .period-label{font-weight:600;font-size:14px;color:var(--text);min-width:140px;text-align:center;}
+  select.input-control,input.input-control{padding:9px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);background:var(--surface);}
+  select.input-control:focus,input.input-control:focus{outline:none;border-color:var(--accent);}
+  .controls-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center;}
+  .controls-row .input-control{flex:1;min-width:130px;}
+  .loading-bar{display:none;align-items:center;gap:10px;color:var(--text2);font-size:13px;margin-bottom:16px;}
+  .loading-bar.show{display:flex;}
+  .spinner-sm{width:18px;height:18px;border:2px solid var(--accent2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* ── TABLE ── */
+  .table-responsive{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  table{width:100%;border-collapse:collapse;min-width:480px;}
+  th,td{padding:10px 11px;text-align:center;border-bottom:1px solid var(--border);}
+  th{background:var(--surface2);font-weight:600;color:var(--text2);font-size:11px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;}
+  td.text-left,th.text-left{text-align:left;}
+  .nama-siswa{font-weight:600;color:var(--text);display:block;line-height:1.3;}
+  .kelas-inline{display:none;font-size:10px;color:var(--text3);font-weight:500;margin-top:2px;}
+  .kelas-tag{font-size:11px;color:var(--text3);background:var(--surface2);padding:2px 8px;border-radius:8px;white-space:nowrap;}
+  .col-kelas-sep{}
+
+  /* ── CELL SCORE — Harian ── */
+  .cell-score{font-family:monospace;font-size:13px;white-space:nowrap;}
+  /* Ikon mode harian */
+  .icon-jamaah{font-size:15px;}
+  .icon-munfarid{font-size:15px;}
+  .icon-haid{font-size:15px;}
+  .icon-miss{font-size:13px;color:var(--text3);}
+
+  /* ── CELL SCORE — Multi-hari ── */
+  /* Kontainer breakdown jamaah/munfarid */
+  .score-wrap{display:flex;flex-direction:column;align-items:center;gap:2px;line-height:1.2;}
+  .score-main{font-size:13px;font-weight:600;}
+  .score-breakdown{font-size:10px;color:var(--text3);white-space:nowrap;}
+  .bd-j{color:var(--jamaah);}   /* jamaah count */
+  .bd-m{color:var(--munfarid);} /* munfarid count */
+  .bd-h{color:var(--haid);}     /* haid indicator */
+
+  /* Warna baris total */
+  .score-perfect{color:var(--accent);font-weight:bold;}
+  .score-bad{color:var(--danger);font-weight:bold;}
+  .score-mid{color:#B07800;}
+  .score-haid-cell{color:var(--haid);}
+
+  .btn-print{padding:10px 18px;background:var(--accent);color:white;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;transition:background .2s;white-space:nowrap;}
+  .btn-print:hover{background:#245C41;}
+
+  /* ── MOBILE ── */
+  @media(max-width:600px){
+    body{padding:12px;}
+    .container{padding:16px 12px;border-radius:10px;}
+    .page-header h1{font-size:22px;}
+    .mode-tab{padding:8px 14px;font-size:12px;}
+    .period-controls{gap:6px;}
+    .period-btn{padding:6px 10px;font-size:12px;}
+    .period-label{min-width:110px;font-size:13px;}
+    .controls-row{flex-direction:column;align-items:stretch;}
+    .controls-row .input-control{min-width:0;width:100%;}
+    .kelas-inline{display:block;}
+    th.col-kelas-sep,td.col-kelas-sep{display:none;}
+    th,td{padding:7px 5px;font-size:11px;}
+    td.text-left{padding-left:8px;}
+    .kelas-tag{display:none;}
+    .legend{gap:8px;padding:8px 10px;}
+    .score-breakdown{font-size:9px;}
+  }
+
+  /* ── PRINT ── */
+  @media print{
+    body{background:white;padding:0;}
+    .container{box-shadow:none;border:none;padding:0;max-width:100%;}
+    .mode-tabs,.period-controls,.controls-row,.loading-bar,.btn-print{display:none!important;}
+    .page-header{border-bottom:2px solid black;}
+    .legend{background:none;border:1px solid #ccc;}
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="page-header">
+    <div>
+      <h1>Laporan Absen Shalat</h1>
+      <p id="period-text">Memuat kelas...</p>
+    </div>
+    <button class="btn-print" onclick="window.print()">🖨️ Cetak PDF</button>
+  </div>
+
+  <div class="mode-tabs">
+    <button class="mode-tab active" id="tab-harian"   onclick="setMode('harian')">📝 Harian</button>
+    <button class="mode-tab"        id="tab-mingguan" onclick="setMode('mingguan')">📅 Mingguan</button>
+    <button class="mode-tab"        id="tab-bulanan"  onclick="setMode('bulanan')">🗓️ Bulanan</button>
+  </div>
+
+  <div class="period-controls">
+    <button class="period-btn" onclick="prevPeriod()">← Sebelumnya</button>
+    <span class="period-label" id="period-label">—</span>
+    <button class="period-btn" onclick="nextPeriod()">Berikutnya →</button>
+    <button class="period-btn" onclick="gotoToday()">Hari Ini</button>
+    <input type="date" id="date-picker" class="input-control" onchange="changeDate()">
+  </div>
+
+  <!-- Legenda -->
+  <div class="legend" id="legend">
+    <span class="legend-title">Legenda</span>
+    <span class="legend-item"><span class="legend-dot ld-jamaah"></span>👥 Jamaah</span>
+    <span class="legend-item"><span class="legend-dot ld-munfarid"></span>👤 Munfarid</span>
+    <span class="legend-item"><span class="legend-dot ld-haid"></span>🌸 Haid/Halangan</span>
+    <span class="legend-item"><span class="legend-dot ld-miss"></span>❌ Belum Absen</span>
+    <span class="legend-item" id="legend-breakdown-hint" style="display:none;margin-left:8px;color:var(--text3);font-style:italic;">
+      Format multi-hari: total (👥J 👤M)
+    </span>
+  </div>
+
+  <div class="controls-row" id="filter-controls" style="display:none;">
+    <select id="class-filter" class="input-control" onchange="handleClassFilterChange()"></select>
+    <input type="text" id="search-input" class="input-control" placeholder="🔍 Cari nama siswa..." oninput="renderTable()">
+    <select id="filter-select" class="input-control" onchange="renderTable()">
+      <option value="all">Tampilkan Semua</option>
+      <option value="bolong">Yang Bolong</option>
+      <option value="sempurna">Yang Sempurna</option>
+      <option value="haid">Ada Status Haid 🌸</option>
+      <option value="jamaah">Hanya Jamaah 👥</option>
+      <option value="munfarid">Hanya Munfarid 👤</option>
+    </select>
+  </div>
+
+  <div class="loading-bar show" id="loading-bar">
+    <div class="spinner-sm"></div>
+    <span id="loading-text">Mengambil data dari server...</span>
+  </div>
+
+  <div class="table-responsive">
+    <table>
+      <thead><tr id="table-head-row"></tr></thead>
+      <tbody id="table-body"><tr><td colspan="3" style="padding:30px;color:#9E9E9E;">Memuat data...</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<script type="module">
+import { db, collection, getDocs } from "./firebase.js";
+
+// ── STATE ──
+let dbData   = [];  // [{namaKelas, siswa:[{id,nama,gender}]}]
+let STUDENTS = [];  // [{id,nama,namaKelas}] — daftar aktif sesuai filter kelas
+let currentClass = "semua";
+
+const PRAYERS    = ["subuh","dhuha","dzuhur","ashar","maghrib","isya"];
+const DAY_NAMES  = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+const MONTH_NAMES= ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+let mode = 'harian', weekOffset = 0, monthOffset = 0;
+let selectedDateObj = new Date();
+let allData = {}, activeDates = [];
+
+// ── HELPERS ──
+function toDateStr(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+/**
+ * Normalisasi nilai absen ke salah satu dari:
+ *   'jamaah' | 'munfarid' | 'haid' | 'done' | false
+ *
+ * Kompatibel dengan data lama yang nilainya true/false/string.
+ */
+function normVal(v) {
+  if (!v || v === false) return false;
+  if (v === 'haid')     return 'haid';
+  if (v === 'jamaah')   return 'jamaah';
+  if (v === 'munfarid') return 'munfarid';
+  // Data lama: true / "true" / string lain → anggap sudah shalat, mode tidak diketahui
+  return 'done';
+}
+
+/** Apakah nilai ini berarti "sudah shalat" (bukan haid, bukan absen) */
+function isDone(v) { const n = normVal(v); return n && n !== 'haid'; }
+/** Apakah ada jamaah di record satu hari */
+function hasJamaah(absen)  { return PRAYERS.some(p => normVal(absen[p]) === 'jamaah'); }
+/** Apakah ada munfarid di record satu hari */
+function hasMunfarid(absen){ return PRAYERS.some(p => normVal(absen[p]) === 'munfarid'); }
+/** Apakah ada haid di record satu hari */
+function hasHaid(absen)    { return PRAYERS.some(p => normVal(absen[p]) === 'haid'); }
+
+// ── PERIOD HELPERS ──
+function getWeekDates(offset) {
+  const dates = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i - (offset * 7));
+    dates.push({ id: toDateStr(d), label: `${DAY_NAMES[d.getDay()]}, ${d.getDate()}/${d.getMonth()+1}` });
+  }
+  return dates;
+}
+function getMonthDates(offset) {
+  const now   = new Date();
+  const first = new Date(now.getFullYear(), now.getMonth() - offset, 1);
+  const last  = new Date(now.getFullYear(), now.getMonth() - offset + 1, 0);
+  const dates = [];
+  for (let d = new Date(first); d <= last; d.setDate(d.getDate() + 1))
+    dates.push({ id: toDateStr(new Date(d)), label: `${d.getDate()}` });
+  return dates;
+}
+function getPeriodLabel() {
+  if (mode === 'harian')   return `${DAY_NAMES[selectedDateObj.getDay()]}, ${selectedDateObj.getDate()} ${MONTH_NAMES[selectedDateObj.getMonth()]} ${selectedDateObj.getFullYear()}`;
+  if (mode === 'mingguan') { const d = getWeekDates(weekOffset); return `${d[0].label.split(', ')[1]} – ${d[6].label.split(', ')[1]}`; }
+  const d = new Date(new Date().getFullYear(), new Date().getMonth() - monthOffset, 1);
+  return `${MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}`;
+}
+function getMaxScore() {
+  // Hanya waktu shalat yang terlaksana (haid tidak dihitung)
+  return mode === 'harian' ? PRAYERS.length : activeDates.length * PRAYERS.length;
+}
+
+// ── STUDENT LIST ──
+function buildStudentList() {
+  if (currentClass === 'semua') {
+    STUDENTS = [];
+    dbData.forEach(k => k.siswa.forEach(s => STUDENTS.push({ ...s, namaKelas: k.namaKelas })));
+  } else {
+    const k = dbData.find(k => k.namaKelas === currentClass);
+    STUDENTS = k ? k.siswa.map(s => ({ ...s, namaKelas: currentClass })) : [];
+  }
+  STUDENTS.sort((a, b) => a.nama.localeCompare(b.nama));
+}
+
+// ── FETCH DATA (batched concurrent) ──
+async function fetchData(dates) {
+  allData = {};
+  const BATCH_SIZE  = 5;
+  const loadingText = document.getElementById('loading-text');
+
+  for (let i = 0; i < dates.length; i += BATCH_SIZE) {
+    const batch = dates.slice(i, i + BATCH_SIZE);
+    if (loadingText)
+      loadingText.textContent = `Mengambil data... (${Math.min(i + BATCH_SIZE, dates.length)}/${dates.length})`;
+
+    const results = await Promise.allSettled(
+      batch.map(({ id: dateStr }) =>
+        getDocs(collection(db, "absen", dateStr, "siswa"))
+          .then(snap => ({ dateStr, snap }))
+      )
+    );
+    results.forEach(r => {
+      if (r.status === 'fulfilled') {
+        const { dateStr, snap } = r.value;
+        snap.forEach(d => {
+          if (!allData[d.id]) allData[d.id] = {};
+          allData[d.id][dateStr] = d.data();
+        });
+      } else {
+        console.warn('[Laporan] Gagal fetch date:', r.reason?.message);
+      }
+    });
+  }
+}
+
+// ── TABLE HEAD ──
+function buildTableHead(dates) {
+  const row = document.getElementById('table-head-row');
+  row.innerHTML = '';
+  const showKelas = currentClass === 'semua';
+  const addTh = (text, cls = '') => {
+    const th = document.createElement('th');
+    th.textContent = text;
+    if (cls) th.className = cls;
+    row.appendChild(th);
+  };
+  addTh('No');
+  addTh('Nama Siswa', 'text-left');
+  if (showKelas) addTh('Kelas', 'col-kelas-sep');
+  const dataCols = mode === 'harian'
+    ? PRAYERS.map(p => p.charAt(0).toUpperCase() + p.slice(1))
+    : dates.map(d => d.label);
+  dataCols.forEach(c => addTh(c));
+  addTh('Total');
+}
+
+// ── CELL RENDERERS ──
+
+/**
+ * Mode Harian — per-waktu shalat.
+ * Tampilkan 👥 jamaah / 👤 munfarid / ✅ done (lama) / 🌸 haid / ❌ belum
+ */
+function renderCellHarian(absen, prayerId) {
+  const v = normVal(absen[prayerId]);
+  if (v === 'haid')     return `<td class="cell-score"><span class="icon-haid">🌸</span></td>`;
+  if (v === 'jamaah')   return `<td class="cell-score"><span class="icon-jamaah" title="Berjamaah">👥</span></td>`;
+  if (v === 'munfarid') return `<td class="cell-score"><span class="icon-munfarid" title="Munfarid">👤</span></td>`;
+  if (v === 'done')     return `<td class="cell-score">✅</td>`; // data lama
+  return `<td class="cell-score"><span class="icon-miss">❌</span></td>`;
+}
+
+/**
+ * Mode Multi-hari — per-kolom tanggal.
+ * Tampilkan: jumlah shalat + breakdown jamaah/munfarid kecil di bawahnya.
+ * Contoh:   5/6
+ *            👥3 👤2
+ */
+function renderCellMulti(absen) {
+  let cnt = 0, cJ = 0, cM = 0, cD = 0, adaHaid = false;
+  PRAYERS.forEach(p => {
+    const v = normVal(absen[p]);
+    if (v === 'haid')     { adaHaid = true; }
+    else if (v === 'jamaah')   { cnt++; cJ++; }
+    else if (v === 'munfarid') { cnt++; cM++; }
+    else if (v === 'done')     { cnt++; cD++; }
+  });
+
+  let mainCls = 'score-main';
+  if (cnt === PRAYERS.length) mainCls += ' score-perfect';
+  else if (cnt === 0 && !adaHaid) mainCls += ' score-bad';
+
+  // Breakdown hanya tampil kalau ada jamaah/munfarid yang tercatat
+  let breakdown = '';
+  const parts = [];
+  if (cJ > 0) parts.push(`<span class="bd-j">👥${cJ}</span>`);
+  if (cM > 0) parts.push(`<span class="bd-m">👤${cM}</span>`);
+  if (cD > 0) parts.push(`<span style="color:var(--text3)">✅${cD}</span>`); // data lama
+  if (adaHaid) parts.push(`<span class="bd-h">🌸</span>`);
+  if (parts.length) breakdown = `<div class="score-breakdown">${parts.join(' ')}</div>`;
+
+  const mainText = cnt === 0 && !adaHaid ? '-' : `${cnt}/${PRAYERS.length}`;
+  return { html: `<div class="score-wrap"><div class="${mainCls}">${mainText}</div>${breakdown}</div>`, cnt, adaHaid };
+}
+
+// ── RENDER TABLE ──
+function renderTable() {
+  const tbody     = document.getElementById('table-body');
+  tbody.innerHTML = '';
+  const searchVal = document.getElementById('search-input').value.toLowerCase();
+  const filterVal = document.getElementById('filter-select').value;
+  const maxScore  = getMaxScore();
+  const showKelas = currentClass === 'semua';
+  let no = 1;
+
+  STUDENTS.forEach(student => {
+    let total   = 0;
+    let adaHaid = false;
+    // Flags untuk filter baru
+    let hasAnyJamaah   = false;
+    let hasAnyMunfarid = false;
+    const cells = [];
+
+    if (mode === 'harian') {
+      const dateStr = activeDates[0].id;
+      const absen   = allData[student.id]?.[dateStr] || {};
+      PRAYERS.forEach(p => {
+        const v = normVal(absen[p]);
+        if (v === 'haid')     adaHaid = true;
+        else if (v)           { total++; }
+        if (v === 'jamaah')   hasAnyJamaah   = true;
+        if (v === 'munfarid') hasAnyMunfarid = true;
+        cells.push(renderCellHarian(absen, p));
+      });
+
+    } else {
+      activeDates.forEach(({ id: dateStr }) => {
+        const absen = allData[student.id]?.[dateStr] || {};
+        const { html, cnt, adaHaid: h } = renderCellMulti(absen);
+        total += cnt;
+        if (h) adaHaid = true;
+        if (hasJamaah(absen))   hasAnyJamaah   = true;
+        if (hasMunfarid(absen)) hasAnyMunfarid = true;
+        cells.push(`<td class="cell-score">${html}</td>`);
+      });
+    }
+
+    // ── FILTER ──
+    if (searchVal && !student.nama.toLowerCase().includes(searchVal)) return;
+    if (filterVal === 'bolong'   && total === maxScore) return;
+    if (filterVal === 'sempurna' && total !== maxScore) return;
+    if (filterVal === 'haid'     && !adaHaid)           return;
+    if (filterVal === 'jamaah'   && !hasAnyJamaah)      return;
+    if (filterVal === 'munfarid' && !hasAnyMunfarid)    return;
+
+    // ── ROW ──
+    const tr = document.createElement('tr');
+    let totCls = 'cell-score';
+    if (total === maxScore)          totCls += ' score-perfect';
+    else if (total < maxScore * 0.6) totCls += ' score-bad';
+    else if (total < maxScore * 0.8) totCls += ' score-mid';
+
+    const kelasInline = showKelas ? `<span class="kelas-inline">${student.namaKelas}</span>` : '';
+    const kelasCell   = showKelas ? `<td class="col-kelas-sep"><span class="kelas-tag">${student.namaKelas}</span></td>` : '';
+    tr.innerHTML = `<td>${no++}</td><td class="text-left"><span class="nama-siswa">${student.nama}</span>${kelasInline}</td>${kelasCell}${cells.join('')}<td class="${totCls}">${total}/${maxScore}</td>`;
+    tbody.appendChild(tr);
+  });
+
+  // Empty state
+  const colCount = (mode === 'harian' ? PRAYERS.length : activeDates.length) + (showKelas ? 4 : 3);
+  if (!tbody.hasChildNodes())
+    tbody.innerHTML = `<tr><td colspan="${colCount}" style="padding:30px;color:#9E9E9E;">Tidak ada data yang cocok dengan filter.</td></tr>`;
+}
+
+// ── LOAD PERIOD ──
+async function loadPeriod() {
+  document.getElementById('loading-bar').classList.add('show');
+  document.getElementById('filter-controls').style.display = 'none';
+
+  if      (mode === 'harian')   activeDates = [{ id: toDateStr(selectedDateObj), label: getPeriodLabel() }];
+  else if (mode === 'mingguan') activeDates = getWeekDates(weekOffset);
+  else                          activeDates = getMonthDates(monthOffset);
+
+  document.getElementById('period-label').textContent = getPeriodLabel();
+  document.getElementById('period-text').textContent  =
+    `${currentClass === 'semua' ? 'Semua Kelas' : currentClass} · ${getPeriodLabel()} · Maks ${getMaxScore()} waktu`;
+
+  // Tampilkan hint breakdown di legenda hanya untuk mode multi-hari
+  const hint = document.getElementById('legend-breakdown-hint');
+  if (hint) hint.style.display = mode === 'harian' ? 'none' : 'inline-flex';
+
+  buildStudentList();
+  buildTableHead(activeDates);
+
+  const totalDates = activeDates.length;
+  if (totalDates > 7)
+    document.getElementById('loading-text').textContent =
+      `Mengambil ${totalDates} hari data... (koneksi lambat = lebih lama)`;
+
+  try {
+    await fetchData(activeDates);
+  } catch (e) {
+    console.error('[loadPeriod]', e);
+    document.getElementById('loading-text').textContent = '⚠️ Sebagian data gagal dimuat.';
+  }
+
+  document.getElementById('loading-bar').classList.remove('show');
+  document.getElementById('filter-controls').style.display = 'flex';
+  renderTable();
+}
+
+// ── NAVIGATION ──
+function handleClassFilterChange() {
+  currentClass = document.getElementById('class-filter').value;
+  loadPeriod();
+}
+function setMode(m) {
+  mode = m; weekOffset = 0; monthOffset = 0;
+  document.getElementById('tab-harian').className   = 'mode-tab' + (m === 'harian'   ? ' active' : '');
+  document.getElementById('tab-mingguan').className = 'mode-tab' + (m === 'mingguan' ? ' active' : '');
+  document.getElementById('tab-bulanan').className  = 'mode-tab' + (m === 'bulanan'  ? ' active' : '');
+  const dp = document.getElementById('date-picker');
+  if (m === 'harian') { dp.style.display = 'inline-block'; dp.value = toDateStr(selectedDateObj); }
+  else dp.style.display = 'none';
+  loadPeriod();
+}
+function prevPeriod() {
+  if      (mode === 'mingguan') weekOffset++;
+  else if (mode === 'bulanan')  monthOffset++;
+  else { selectedDateObj.setDate(selectedDateObj.getDate() - 1); document.getElementById('date-picker').value = toDateStr(selectedDateObj); }
+  loadPeriod();
+}
+function nextPeriod() {
+  if      (mode === 'mingguan') { if (weekOffset  > 0) weekOffset--;  }
+  else if (mode === 'bulanan')  { if (monthOffset > 0) monthOffset--; }
+  else { selectedDateObj.setDate(selectedDateObj.getDate() + 1); document.getElementById('date-picker').value = toDateStr(selectedDateObj); }
+  loadPeriod();
+}
+function gotoToday() {
+  weekOffset = 0; monthOffset = 0; selectedDateObj = new Date();
+  if (mode === 'harian') document.getElementById('date-picker').value = toDateStr(selectedDateObj);
+  loadPeriod();
+}
+function changeDate() {
+  const v = document.getElementById('date-picker').value;
+  if (v) { selectedDateObj = new Date(v + 'T00:00:00'); loadPeriod(); }
+}
+
+// ── INIT ──
+async function initTeacherDashboard() {
+  try {
+    const snap = await getDocs(collection(db, "kelas"));
+    dbData = [];
+    for (const kelasDoc of snap.docs) {
+      const siswaSnap = await getDocs(collection(db, "kelas", kelasDoc.id, "siswa"));
+      const siswaList = [];
+      siswaSnap.forEach(s => siswaList.push({ id: s.id, ...s.data() }));
+      siswaList.sort((a, b) => a.nama.localeCompare(b.nama));
+      dbData.push({ namaKelas: kelasDoc.id, siswa: siswaList });
+    }
+    dbData.sort((a, b) => a.namaKelas.localeCompare(b.namaKelas));
+
+    const sel = document.getElementById('class-filter');
+    sel.innerHTML = '<option value="semua">Semua Kelas</option>';
+    dbData.forEach(k => {
+      const opt = document.createElement('option');
+      opt.value = k.namaKelas; opt.textContent = k.namaKelas;
+      sel.appendChild(opt);
+    });
+
+    if (dbData.length > 0) { currentClass = 'semua'; setMode('harian'); }
+    else document.getElementById('loading-text').textContent = "⚠️ Belum ada kelas di database.";
+  } catch (e) {
+    console.error(e);
+    document.getElementById('loading-text').textContent = "⚠️ Gagal memuat data. Cek koneksi.";
+  }
+}
+
+// Expose ke onclick HTML
+window.setMode             = setMode;
+window.prevPeriod          = prevPeriod;
+window.nextPeriod          = nextPeriod;
+window.gotoToday           = gotoToday;
+window.renderTable         = renderTable;
+window.changeDate          = changeDate;
+window.handleClassFilterChange = handleClassFilterChange;
+
+initTeacherDashboard();
+</script>
+</body>
+</html>
