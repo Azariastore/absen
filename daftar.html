@@ -46,12 +46,23 @@ select.input{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
 /* KODE STEP */
 .kode-hint{font-size:12px;color:var(--text3);margin-top:6px;line-height:1.5;}
 
-/* SUCCESS */
+/* SUCCESS + QR */
 .success-icon{width:80px;height:80px;background:var(--accent-light);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:36px;}
 .success-title{font-family:'DM Serif Display',serif;font-size:22px;text-align:center;color:var(--accent);margin-bottom:10px;}
 .success-text{color:var(--text2);font-size:13px;text-align:center;line-height:1.7;}
-.success-id{background:var(--surface2);border-radius:var(--radius-sm);padding:12px 16px;margin:20px 0;text-align:center;font-family:monospace;font-size:16px;color:var(--text);letter-spacing:2px;font-weight:600;}
+.success-id{background:var(--surface2);border-radius:var(--radius-sm);padding:12px 16px;margin:16px 0;text-align:center;font-family:monospace;font-size:16px;color:var(--text);letter-spacing:2px;font-weight:600;}
 .success-id-label{font-size:11px;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;}
+
+/* QR CODE SECTION */
+.qr-section{text-align:center;margin:20px 0;}
+.qr-label{font-size:12px;color:var(--text3);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;font-weight:600;}
+.qr-box{background:white;border:2px solid var(--border);border-radius:var(--radius-sm);padding:16px;display:inline-block;margin-bottom:8px;}
+.qr-hint{font-size:11px;color:var(--text3);line-height:1.5;}
+.btn-success{width:100%;padding:14px;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;}
+.btn-go{background:var(--accent);color:white;}
+.btn-go:hover{background:#245C41;}
+.btn-copy{background:var(--surface2);color:var(--text2);border:1.5px solid var(--border);}
+.btn-copy:hover{background:var(--surface3,#E8E4DB);}
 
 /* LOADING SPINNER */
 .spinner-wrap{display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px 0;gap:14px;}
@@ -141,19 +152,38 @@ select.input{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
     <button class="btn btn-outline" onclick="backToStep1()">← Kembali</button>
   </div>
 
-  <!-- STEP 3: SUKSES -->
+  <!-- STEP 3: SUKSES + QR CODE -->
   <div class="step" id="step-3">
     <div class="success-icon">✅</div>
     <div class="success-title">Pendaftaran Berhasil!</div>
-    <div class="success-text">Data kamu telah berhasil didaftarkan. Hubungi guru untuk konfirmasi dan mendapatkan akses login.</div>
+    <div class="success-text">Selamat! Data kamu sudah terdaftar di sistem Absen Shalat.</div>
     <div class="success-id">
-      <div class="success-id-label">ID Kamu</div>
+      <div class="success-id-label">ID Siswa Kamu</div>
       <div id="result-id">—</div>
     </div>
-    <div class="success-text" style="font-size:12px;">Simpan ID ini. Guru akan menggunakannya untuk memverifikasi akunmu.</div>
+
+    <!-- QR CODE -->
+    <div class="qr-section">
+      <div class="qr-label">Scan untuk langsung masuk</div>
+      <div class="qr-box">
+        <canvas id="qr-canvas"></canvas>
+      </div>
+      <div class="qr-hint">
+        Scan QR ini dengan kamera HP untuk langsung<br>
+        masuk ke dashboard tanpa perlu pilih nama lagi.
+      </div>
+    </div>
+
+    <button class="btn-success btn-go" id="btn-masuk-dashboard">
+      🚀 Masuk ke Dashboard
+    </button>
+    <button class="btn-success btn-copy" id="btn-copy-id">
+      📋 Salin ID Siswa
+    </button>
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script type="module">
 import {
   db, doc, getDoc, setDoc, updateDoc, deleteDoc,
@@ -161,61 +191,107 @@ import {
 } from "./firebase.js";
 
 // ── STATE ──
-let verifiedKode = null; // data kode yang sudah diverifikasi
-let kelasList    = [];   // [{namaKelas}]
+let verifiedKode  = null;
+let kelasList     = [];
+let newSiswaId    = null;
+let newSiswaKelas = null;
 
 // ── HELPERS ──
-// FIX: genId pakai 7 karakter (36^7 ≈ 78 miliar kombinasi) → collision rate
-// untuk 500 siswa hanya ~0.0000003%, jauh lebih aman dari 5 karakter sebelumnya.
 function genId() {
   const c = 'abcdefghijklmnopqrstuvwxyz0123456789';
   return Array.from({ length: 7 }, () => c[Math.floor(Math.random() * c.length)]).join('');
 }
-
-// FIX: Sanitasi input — hapus karakter berbahaya (XSS prevention)
-function sanitize(str) {
-  return str.replace(/[<>"'`]/g, '').trim();
-}
-
-// FIX: Debounce helper — cegah spam klik verifikasiKode
+function sanitize(str) { return str.replace(/[<>"'`]/g, '').trim(); }
 function debounce(fn, ms) {
   let timer;
-  return (...args) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => fn(...args), ms);
-  };
+  return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };
 }
-
 function showSpinner(text="Memproses...") {
   document.getElementById('spinner-text').textContent = text;
   document.getElementById('spinner').classList.add('show');
 }
-function hideSpinner() {
-  document.getElementById('spinner').classList.remove('show');
-}
-
+function hideSpinner() { document.getElementById('spinner').classList.remove('show'); }
 function showErr(msg) {
   const box = document.getElementById('err-box');
-  box.textContent = msg;
-  box.classList.add('show');
+  box.textContent = msg; box.classList.add('show');
 }
-function hideErr() {
-  document.getElementById('err-box').classList.remove('show');
-}
-
+function hideErr() { document.getElementById('err-box').classList.remove('show'); }
 function setStep(n) {
-  document.querySelectorAll('.step').forEach((s,i) => {
-    s.classList.toggle('active', i===n-1);
-  });
-  // Update progress bar
-  for(let i=1;i<=3;i++) {
-    document.getElementById('ps-'+i).classList.toggle('done', i<=n);
-  }
+  document.querySelectorAll('.step').forEach((el, i) => el.classList.toggle('active', i+1===n));
+  for (let i=1;i<=3;i++) document.getElementById('ps-'+i).classList.toggle('done', i<=n);
 }
 
-// ── LOAD KELAS (hanya yang visible di pendaftaran) ──
+// ── BUILD AUTO-LOGIN URL ──
+// Format: index.html?uid=xxx&kelas=xxx
+// Saat dibuka → index.html deteksi URL param → auto-login tanpa pilih dropdown
+function buildAutoLoginUrl(siswaId, kelas) {
+  const base = window.location.href
+    .replace(/daftar\.html.*$/, 'index.html');
+  return `${base}?uid=${encodeURIComponent(siswaId)}&kelas=${encodeURIComponent(kelas)}`;
+}
+
+// ── RENDER QR CODE ──
+// Primary: qrcode.js library (CDN, cached setelah load pertama)
+// Fallback: Google Charts API (butuh internet)
+async function renderQRCode(url) {
+  const canvas = document.getElementById('qr-canvas');
+  if (!canvas) return;
+  try {
+    if (typeof QRCode !== 'undefined') {
+      await QRCode.toCanvas(canvas, url, {
+        width: 180, margin: 1,
+        color: { dark: '#1A1A1A', light: '#FFFFFF' },
+        errorCorrectionLevel: 'M'
+      });
+      return;
+    }
+  } catch(e) { console.warn('[QR] qrcode.js gagal:', e.message); }
+  // Fallback: img dari Google Charts
+  const img = document.createElement('img');
+  img.src = `https://chart.googleapis.com/chart?cht=qr&chs=180x180&chl=${encodeURIComponent(url)}&choe=UTF-8`;
+  img.width = 180; img.height = 180; img.alt = 'QR Code';
+  const box = canvas.parentElement;
+  box.innerHTML = ''; box.appendChild(img);
+}
+
+// ── SHOW SUCCESS ──
+async function showSuccessStep(siswaId, kelas, nama) {
+  newSiswaId    = siswaId;
+  newSiswaKelas = kelas;
+  document.getElementById('result-id').textContent = siswaId;
+
+  // Simpan ke localStorage → index.html bisa auto-login langsung
+  try {
+    localStorage.setItem('savedUserId',   siswaId);
+    localStorage.setItem('savedUserNama', nama);
+    localStorage.setItem('savedClass',    kelas);
+  } catch(e) {}
+
+  setStep(3);
+
+  const loginUrl = buildAutoLoginUrl(siswaId, kelas);
+  await renderQRCode(loginUrl);
+
+  document.getElementById('btn-masuk-dashboard').onclick = () => {
+    window.location.href = loginUrl;
+  };
+  document.getElementById('btn-copy-id').onclick = async () => {
+    const btn = document.getElementById('btn-copy-id');
+    try {
+      await navigator.clipboard.writeText(siswaId);
+      btn.textContent = '✅ Tersalin!';
+      setTimeout(() => { btn.textContent = '📋 Salin ID Siswa'; }, 2000);
+    } catch {
+      const el = document.getElementById('result-id');
+      const r = document.createRange(); r.selectNode(el);
+      window.getSelection().removeAllRanges();
+      window.getSelection().addRange(r);
+    }
+  };
+}
+
+// ── LOAD KELAS ──
 async function loadKelasOptions() {
-  // Bug 2 fix: reset select dulu, lalu fetch fresh dari Firestore
   const sel = document.getElementById('kelas-input');
   sel.innerHTML = '<option value="">⏳ Memuat daftar kelas...</option>';
   sel.disabled = true;
@@ -224,14 +300,11 @@ async function loadKelasOptions() {
     kelasList = [];
     snap.forEach(d => {
       const data = d.data();
-      // Hanya tampilkan kelas yang ditandai visibleDaftar = true oleh admin
-      if(data.visibleDaftar === true) {
-        kelasList.push({ namaKelas: d.id });
-      }
+      if (data.visibleDaftar === true) kelasList.push({ namaKelas: d.id });
     });
     kelasList.sort((a,b) => a.namaKelas.localeCompare(b.namaKelas));
     sel.innerHTML = '<option value="">— Pilih kelas kamu —</option>';
-    if(kelasList.length === 0) {
+    if (kelasList.length === 0) {
       sel.innerHTML = '<option value="">Belum ada kelas tersedia</option>';
       sel.disabled = true;
       showErr("Belum ada kelas yang dibuka untuk pendaftaran. Hubungi guru.");
@@ -246,7 +319,6 @@ async function loadKelasOptions() {
   } catch(e) {
     sel.innerHTML = '<option value="">Gagal memuat kelas</option>';
     sel.disabled = true;
-    console.warn("Gagal load kelas:", e);
     showErr("Gagal memuat daftar kelas. Cek koneksi internet.");
   }
 }
@@ -256,153 +328,103 @@ async function verifikasiKode() {
   const kode = document.getElementById('kode-input').value.trim().toUpperCase();
   document.getElementById('kode-err').textContent = '';
   hideErr();
-
-  if(!kode) {
-    document.getElementById('kode-err').textContent = 'Kode tidak boleh kosong.';
-    return;
-  }
-
+  if (!kode) { document.getElementById('kode-err').textContent = 'Kode tidak boleh kosong.'; return; }
   showSpinner("Memverifikasi kode...");
   document.getElementById('btn-verifikasi').disabled = true;
-
   try {
-    const kodeRef = doc(db, "kodeRegistrasi", kode);
+    const kodeRef  = doc(db, "kodeRegistrasi", kode);
     const kodeSnap = await getDoc(kodeRef);
-
-    if(!kodeSnap.exists()) {
+    if (!kodeSnap.exists()) {
       hideSpinner();
       document.getElementById('kode-err').textContent = 'Kode tidak ditemukan atau sudah tidak berlaku.';
       document.getElementById('btn-verifikasi').disabled = false;
       return;
     }
-
     const kodeData = kodeSnap.data();
-
-    // Cek apakah kode masih aktif
-    if(!kodeData.aktif) {
+    if (!kodeData.aktif) {
       hideSpinner();
       document.getElementById('kode-err').textContent = 'Kode ini sudah dinonaktifkan oleh admin.';
       document.getElementById('btn-verifikasi').disabled = false;
       return;
     }
-
-    // Cek expired
-    const now = Date.now();
-    if(kodeData.expiredAt && now > kodeData.expiredAt) {
-      // Auto-nonaktifkan kode yang sudah expired
+    if (kodeData.expiredAt && Date.now() > kodeData.expiredAt) {
       await updateDoc(kodeRef, { aktif: false });
       hideSpinner();
       document.getElementById('kode-err').textContent = 'Kode sudah kadaluarsa. Minta kode baru ke guru.';
       document.getElementById('btn-verifikasi').disabled = false;
       return;
     }
-
-    // Kode valid
     verifiedKode = { kode, ...kodeData };
     await loadKelasOptions();
     hideSpinner();
     setStep(2);
-
   } catch(e) {
     hideSpinner();
     showErr("Gagal memverifikasi kode. Cek koneksi internet.");
     document.getElementById('btn-verifikasi').disabled = false;
   }
 }
-// FIX: Debounce 500ms agar tidak bisa spam klik / spam Enter
 const verifikasiKodeDebounced = debounce(verifikasiKode, 500);
 window.verifikasiKode = verifikasiKodeDebounced;
-
-// Ganti onclick button juga agar pakai debounce
-document.getElementById('btn-verifikasi').onclick = verifikasiKodeDebounced;
-
-// Enter di input kode
+document.getElementById('btn-verifikasi').onclick  = verifikasiKodeDebounced;
 document.getElementById('kode-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') verifikasiKodeDebounced();
 });
 
 // ── BACK ──
-function backToStep1() {
-  hideErr();
-  setStep(1);
-  document.getElementById('btn-verifikasi').disabled = false;
-}
+function backToStep1() { hideErr(); setStep(1); document.getElementById('btn-verifikasi').disabled = false; }
 window.backToStep1 = backToStep1;
 
-// ── STEP 2: SUBMIT PENDAFTARAN ──
+// ── STEP 2: SUBMIT ──
 async function submitPendaftaran() {
-  // Reset errors
-  ['nama','kelas','gender','phone'].forEach(f =>
-    document.getElementById(f+'-err').textContent = ''
-  );
+  ['nama','kelas','gender','phone'].forEach(f => document.getElementById(f+'-err').textContent='');
   hideErr();
-
   const nama   = document.getElementById('nama-input').value.trim();
   const kelas  = document.getElementById('kelas-input').value;
   const gender = document.getElementById('gender-input').value;
   const phone  = document.getElementById('phone-input').value.trim();
-
-  // Validasi
   let valid = true;
-  if(!nama)   { document.getElementById('nama-err').textContent   = 'Nama tidak boleh kosong.';        valid=false; }
-  if(!kelas)  { document.getElementById('kelas-err').textContent  = 'Pilih kelas kamu.';               valid=false; }
-  if(!gender) { document.getElementById('gender-err').textContent = 'Pilih jenis kelamin.';            valid=false; }
-  if(!valid) return;
-
+  if (!nama)   { document.getElementById('nama-err').textContent   = 'Nama tidak boleh kosong.'; valid=false; }
+  if (!kelas)  { document.getElementById('kelas-err').textContent  = 'Pilih kelas kamu.';        valid=false; }
+  if (!gender) { document.getElementById('gender-err').textContent = 'Pilih jenis kelamin.';     valid=false; }
+  if (!valid) return;
   showSpinner("Mendaftarkan data...");
   document.getElementById('btn-daftar').disabled = true;
-
   try {
-    // FIX: Pakai 7-karakter ID + cek hanya di kelas yang dipilih siswa
-    // (bukan semua kelas). Collision rate 7-char sudah sangat kecil untuk
-    // skala 500 siswa, tidak perlu scan seluruh database.
-    // Tapi tetap cek duplikat di kelas yang dipilih untuk safety.
-    const siswaSnapCek = await getDocs(collection(db, "kelas", kelas, "siswa"));
-    const existingIds = new Set(siswaSnapCek.docs.map(d => d.id));
-
-    let newId, tries = 0;
-    do {
-      newId = genId();
-      tries++;
-    } while (existingIds.has(newId) && tries < 10);
-
-    // FIX: Sanitasi semua input sebelum disimpan ke Firestore
+    const snap = await getDocs(collection(db,"kelas",kelas,"siswa"));
+    const existingIds = new Set(snap.docs.map(d => d.id));
+    let newId, tries=0;
+    do { newId=genId(); tries++; } while (existingIds.has(newId) && tries<10);
     const safeName  = sanitize(nama);
     const safePhone = phone ? sanitize(phone) : null;
-
     if (!safeName) {
       hideSpinner();
-      document.getElementById('nama-err').textContent = 'Nama mengandung karakter tidak valid.';
-      document.getElementById('btn-daftar').disabled = false;
+      document.getElementById('nama-err').textContent='Nama mengandung karakter tidak valid.';
+      document.getElementById('btn-daftar').disabled=false;
       return;
     }
-
-    // Simpan ke Firestore
-    const data = { nama: safeName, gender };
+    const data = { nama:safeName, gender };
     if (safePhone) data.phone = safePhone;
     await setDoc(doc(db,"kelas",kelas,"siswa",newId), data);
-
-    // Tampilkan ID ke siswa
-    document.getElementById('result-id').textContent = newId;
     hideSpinner();
-    setStep(3);
-
+    await showSuccessStep(newId, kelas, safeName);
   } catch(e) {
     hideSpinner();
-    showErr("Gagal mendaftar. Cek koneksi internet dan coba lagi.");
-    document.getElementById('btn-daftar').disabled = false;
+    showErr("Gagal mendaftar. Cek koneksi dan coba lagi.");
+    document.getElementById('btn-daftar').disabled=false;
   }
 }
 window.submitPendaftaran = submitPendaftaran;
- window.addEventListener('load', () => {
+document.getElementById('btn-daftar').onclick = submitPendaftaran;
+
+// ── SERVICE WORKER ──
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
-      .then(reg => {
-        console.log('✅ Service Worker Registered successfully');
-      })
-      .catch(err => {
-        console.log('❌ Service Worker registration failed:', err);
-      });
+      .then(() => console.log('✅ SW registered'))
+      .catch(e  => console.log('❌ SW failed:', e));
   });
+}
 </script>
 </body>
 </html>

@@ -17,14 +17,29 @@
     --border:#E0DDD6;--danger:#C1440E;
     --shadow:0 2px 16px rgba(0,0,0,0.07);
     --radius:14px;--radius-sm:8px;
+    /* Heatmap levels */
+    --hm-0:#E0DDD6;--hm-1:#B7E4C7;--hm-2:#52B788;--hm-3:#2D6A4F;--hm-haid:#FFB6C1;
+    /* Transition for dark mode */
+    --theme-transition: background .3s ease, color .3s ease, border-color .3s ease;
   }
+
+  /* ── DARK MODE ── */
+  [data-theme="dark"] {
+    --bg:#0F1A14;--surface:#1A2820;--surface2:#243320;
+    --accent:#52B788;--accent2:#74C69D;--accent3:#1B4332;
+    --text:#E8F5EE;--text2:#A8C5B5;--text3:#5C8A72;
+    --border:#2D4A38;--danger:#FF6B6B;
+    --shadow:0 2px 16px rgba(0,0,0,0.3);
+    --hm-0:#1A2820;--hm-1:#1B4332;--hm-2:#2D6A4F;--hm-3:#52B788;--hm-haid:#7B3050;
+  }
+
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.6;}
+  html { transition: var(--theme-transition); }
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.6;transition:var(--theme-transition);}
   #loading-screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;background:linear-gradient(160deg,var(--bg) 0%,var(--accent3) 140%);padding:24px;position:fixed;inset:0;z-index:9999;transition:opacity .5s ease,visibility .5s ease;}
   #loading-screen.fade-out{opacity:0;visibility:hidden;pointer-events:none;}
   .splash-lottie{width:160px;height:160px;display:flex;align-items:center;justify-content:center;}
   .splash-lottie dotlottie-player{width:100%;height:100%;}
-  /* Fallback CSS (bulan sabit berdenyut) -- tampil otomatis kalau Lottie gagal/lambat load */
   .splash-fallback{width:96px;height:96px;display:none;align-items:center;justify-content:center;position:relative;}
   .splash-fallback.show{display:flex;}
   .splash-fallback .moon{width:72px;height:72px;border-radius:50%;background:var(--accent);box-shadow:22px 0 0 0 var(--bg);transform:rotate(-12deg);animation:moon-pulse 2.2s ease-in-out infinite;}
@@ -53,23 +68,31 @@
   .btn-primary:active{transform:scale(.98);}
   #app{display:none;min-height:100vh;}
   .header{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
-  .header-user{font-size:13px;color:var(--text2);background:var(--surface2);padding:6px 12px;border-radius:20px;font-weight:500;}
-  .header-actions{display:flex;gap:8px;}
-  .btn-icon{padding:8px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:transparent;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text2);font-weight:500;transition:all .2s;}
+  .header-user{font-size:13px;color:var(--text2);background:var(--surface2);padding:6px 12px;border-radius:20px;font-weight:500;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .header-actions{display:flex;gap:6px;align-items:center;}
+  .btn-icon{padding:7px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:transparent;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text2);font-weight:500;transition:all .2s;}
   .btn-icon:hover{background:var(--surface2);border-color:var(--text3);color:var(--text);}
   .btn-icon.active{background:var(--accent);border-color:var(--accent);color:white;}
+  /* Dark mode + Notif icon buttons */
+  .btn-icon-sm{width:34px;height:34px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:transparent;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:all .2s;position:relative;flex-shrink:0;}
+  .btn-icon-sm:hover{background:var(--surface2);}
+  .notif-dot{position:absolute;top:4px;right:4px;width:7px;height:7px;border-radius:50%;background:#FF6B6B;display:none;}
+  .notif-dot.show{display:block;}
   .main{padding:24px 20px;max-width:680px;margin:0 auto;}
   .date-bar{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;}
   .date-day{font-family:'DM Serif Display',serif;font-size:20px;color:var(--text);}
   .date-full{font-size:13px;color:var(--text3);}
-  .streak-badge{background:var(--accent3);color:var(--accent);font-size:12px;font-weight:600;padding:6px 12px;border-radius:20px;}
+  .streak-badge{background:var(--accent3);color:var(--accent);font-size:12px;font-weight:600;padding:6px 12px;border-radius:20px;cursor:pointer;transition:transform .15s;}
+  .streak-badge:hover{transform:scale(1.05);}
   .section-title{font-size:12px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;margin-top:24px;}
   .prayer-grid{display:flex;flex-direction:column;gap:10px;}
   .prayer-card{background:var(--surface);-webkit-tap-highlight-color:transparent;border:1.5px solid var(--border);border-radius:var(--radius);padding:18px 20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:all .2s;user-select:none;}
   .prayer-card:focus,.prayer-card:focus-visible{outline:none;}
   .prayer-card:hover{border-color:var(--accent2);box-shadow:var(--shadow);}
   .prayer-card.checked{background:#F0FFF7;border-color:var(--accent2);}
+  [data-theme="dark"] .prayer-card.checked{background:#1B4332;}
   .prayer-card.haid{background:#FFF0F5;border-color:#FFB6C1;}
+  [data-theme="dark"] .prayer-card.haid{background:#3D1A2A;border-color:#7B3050;}
   .prayer-left{display:flex;align-items:center;gap:14px;}
   .prayer-time-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
   .prayer-info{display:flex;flex-direction:column;}
@@ -109,11 +132,11 @@
   .prayer-dot.haid-dot{background:#FFB6C1;border-color:#FF69B4;}
   .student-count{font-size:12px;color:var(--text3);white-space:nowrap;}
   .empty-note{text-align:center;padding:40px 20px;color:var(--text3);font-size:14px;}
-  .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:9999;}
+  .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px;}
   .modal-overlay.show{display:flex;}
   .modal-card{background:var(--surface);border-radius:20px;padding:32px 24px;width:90%;max-width:320px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,0.2);}
-  .modal-overlay.show .modal-card{animation:slideUp .6s ease forwards;}
-  @keyframes slideUp{from{opacity:0;transform:translateY(40px);}to{opacity:1;transform:translateY(0);}}
+  .modal-overlay.show .modal-card{animation:slideUp .3s ease forwards;}
+  @keyframes slideUp{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
   .modal-icon{font-size:36px;background:#FFF0F5;width:68px;height:68px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
   .modal-title{font-family:'DM Serif Display',serif;font-size:20px;color:var(--text);margin-bottom:8px;}
   .modal-text{color:var(--text2);font-size:14px;margin-bottom:24px;line-height:1.5;}
@@ -126,35 +149,82 @@
 
   /* ── MODAL JAMAAH / MUNFARID ── */
   .jamaah-choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
-  .btn-jamaah-choice{
-    display:flex;flex-direction:column;align-items:center;justify-content:center;
-    gap:5px;padding:16px 8px;border-radius:14px;border:2px solid var(--border);
-    background:var(--surface);cursor:pointer;font-family:'DM Sans',sans-serif;
-    transition:all .15s;-webkit-tap-highlight-color:transparent;
-  }
+  .btn-jamaah-choice{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:16px 8px;border-radius:14px;border:2px solid var(--border);background:var(--surface);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;-webkit-tap-highlight-color:transparent;}
   .btn-jamaah-choice:active{transform:scale(.95);}
   .btn-jamaah-choice.opt-jamaah{border-color:#52B788;background:#F0FFF7;}
   .btn-jamaah-choice.opt-jamaah:hover{background:#D8F3DC;border-color:#2D6A4F;}
   .btn-jamaah-choice.opt-munfarid{border-color:#B7B7FF;background:#F4F4FF;}
   .btn-jamaah-choice.opt-munfarid:hover{background:#E8E8FF;border-color:#7B7BFF;}
+  [data-theme="dark"] .btn-jamaah-choice.opt-jamaah{background:#1B4332;border-color:#52B788;}
+  [data-theme="dark"] .btn-jamaah-choice.opt-munfarid{background:#1A1A35;border-color:#7B7BFF;}
   .bjc-icon{font-size:26px;line-height:1;}
   .bjc-label{font-size:13px;font-weight:600;color:var(--text);}
   .bjc-sub{font-size:10px;color:var(--text3);}
 
   /* ── PRAYER CARD — ICON MODE ── */
-  /* Area kanan card: badge ikon jamaah/munfarid + label kecil */
   .checkbox-right{display:flex;flex-direction:column;align-items:center;gap:3px;}
   .prayer-mode-icon{font-size:20px;line-height:1;display:none;}
-  .prayer-card.checked .prayer-mode-icon,
-  .prayer-card.haid .prayer-mode-icon{display:block;}
+  .prayer-card.checked .prayer-mode-icon,.prayer-card.haid .prayer-mode-icon{display:block;}
   .prayer-mode-label{font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;display:none;}
   .prayer-card.checked .prayer-mode-label{display:block;color:var(--accent);}
   .prayer-card.haid .prayer-mode-label{display:block;color:#FF69B4;}
-  #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:white;padding:12px 22px;border-radius:30px;font-size:14px;font-weight:500;opacity:0;transition:all .3s;z-index:9999;pointer-events:none;white-space:nowrap;}
+
+  #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--surface);padding:12px 22px;border-radius:30px;font-size:14px;font-weight:500;opacity:0;transition:all .3s;z-index:9999;pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center;}
   #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
   .icon-subuh{background:#EEF2FF;}.icon-dhuha{background:#FEF3C7;}.icon-dzuhur{background:#FFFBEB;}
   .icon-ashar{background:#FFF7ED;}.icon-maghrib{background:#FDF4FF;}.icon-isya{background:#EFF6FF;}
-  @media(max-width:480px){.login-card{padding:36px 24px;}.header{padding:12px 16px;}.main{padding:16px;}}
+  [data-theme="dark"] .icon-subuh{background:#1A1A35;}[data-theme="dark"] .icon-dhuha{background:#2A2010;}
+  [data-theme="dark"] .icon-dzuhur{background:#2A2810;}[data-theme="dark"] .icon-ashar{background:#2A2015;}
+  [data-theme="dark"] .icon-maghrib{background:#201A2A;}[data-theme="dark"] .icon-isya{background:#1A2030;}
+
+  /* ══ HISTORY / HEATMAP PANEL ══ */
+  .history-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;}
+  .history-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+  .history-title{font-weight:600;font-size:14px;color:var(--text);}
+  .history-streak-info{font-size:12px;color:var(--text3);}
+
+  /* Heatmap grid */
+  .heatmap-wrap{overflow-x:auto;padding-bottom:4px;}
+  .heatmap-labels{display:flex;gap:2px;margin-bottom:4px;padding-left:28px;}
+  .heatmap-month-label{font-size:9px;color:var(--text3);font-weight:500;min-width:10px;text-align:center;}
+  .heatmap-rows{display:flex;gap:2px;}
+  .heatmap-day-labels{display:flex;flex-direction:column;gap:2px;margin-right:4px;}
+  .heatmap-day-label{font-size:9px;color:var(--text3);height:10px;line-height:10px;width:20px;text-align:right;}
+  .heatmap-cols{display:flex;gap:2px;}
+  .heatmap-col{display:flex;flex-direction:column;gap:2px;}
+  .heatmap-cell{width:10px;height:10px;border-radius:2px;cursor:pointer;transition:transform .1s,opacity .1s;flex-shrink:0;}
+  .heatmap-cell:hover{transform:scale(1.4);opacity:.9;}
+  .hm-0{background:var(--hm-0);}
+  .hm-1{background:var(--hm-1);}
+  .hm-2{background:var(--hm-2);}
+  .hm-3{background:var(--hm-3);}
+  .hm-haid{background:var(--hm-haid);}
+  .hm-future{background:transparent;cursor:default;}
+  .hm-future:hover{transform:none;}
+
+  /* Heatmap legend */
+  .heatmap-legend{display:flex;align-items:center;gap:6px;margin-top:10px;flex-wrap:wrap;}
+  .heatmap-legend-label{font-size:10px;color:var(--text3);}
+  .heatmap-legend-cells{display:flex;gap:3px;align-items:center;}
+  .hm-legend-cell{width:10px;height:10px;border-radius:2px;}
+
+  /* Tooltip heatmap */
+  .hm-tooltip{position:fixed;background:var(--text);color:var(--surface);font-size:11px;padding:6px 10px;border-radius:8px;pointer-events:none;z-index:10000;opacity:0;transition:opacity .15s;max-width:200px;text-align:center;line-height:1.4;}
+  .hm-tooltip.show{opacity:1;}
+
+  /* ══ NOTIFIKASI PERMISSION BANNER ══ */
+  .notif-banner{background:var(--accent3);border:1px solid var(--accent2);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:16px;display:none;align-items:center;gap:10px;font-size:13px;color:var(--accent);}
+  .notif-banner.show{display:flex;}
+  .notif-banner button{margin-left:auto;padding:6px 12px;border:none;border-radius:6px;background:var(--accent);color:white;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;}
+  [data-theme="dark"] .notif-banner{background:#1B4332;border-color:#2D6A4F;color:var(--accent2);}
+
+  @media(max-width:480px){
+    .login-card{padding:36px 24px;}
+    .header{padding:12px 14px;}
+    .header-user{max-width:80px;}
+    .main{padding:14px;}
+    .heatmap-cell{width:9px;height:9px;}
+  }
 </style>
 </head>
 <body>
@@ -217,17 +287,30 @@
     <div class="header-actions">
       <button class="btn-icon" id="tab-absen">Absen</button>
       <button class="btn-icon" id="tab-dashboard">Rekap</button>
+      <!-- Notifikasi -->
+      <button class="btn-icon-sm" id="btn-notif" title="Notifikasi shalat">
+        🔔
+        <span class="notif-dot" id="notif-dot"></span>
+      </button>
+      <!-- Dark Mode Toggle -->
+      <button class="btn-icon-sm" id="btn-theme" title="Ganti tema">🌙</button>
     </div>
   </header>
 
   <div id="absen-view">
     <div class="main">
+      <!-- Notifikasi permission banner -->
+      <div class="notif-banner" id="notif-banner">
+        🔔 <span>Aktifkan notifikasi untuk pengingat waktu shalat</span>
+        <button id="btn-enable-notif">Aktifkan</button>
+      </div>
+
       <div class="date-bar">
         <div>
           <div class="date-day" id="day-name">—</div>
           <div class="date-full" id="date-full">—</div>
         </div>
-        <div class="streak-badge" id="streak-badge">🔥 0 hari</div>
+        <div class="streak-badge" id="streak-badge" title="Tap untuk lihat riwayat">🔥 0 hari</div>
       </div>
       <div class="progress-section">
         <div class="progress-top">
@@ -238,6 +321,32 @@
           <div class="progress-bar-fill" id="progress-bar" style="width:0%"></div>
         </div>
       </div>
+
+      <!-- History / Heatmap Panel (hidden by default, toggle on streak click) -->
+      <div class="history-panel" id="history-panel" style="display:none;">
+        <div class="history-header">
+          <span class="history-title">📅 Riwayat 30 Hari</span>
+          <span class="history-streak-info" id="history-streak-info">Streak: 0 hari</span>
+        </div>
+        <div class="heatmap-wrap" id="heatmap-wrap">
+          <div style="color:var(--text3);font-size:13px;text-align:center;padding:20px;">Memuat riwayat...</div>
+        </div>
+        <div class="heatmap-legend">
+          <span class="heatmap-legend-label">Kurang</span>
+          <div class="heatmap-legend-cells">
+            <div class="hm-legend-cell hm-0"></div>
+            <div class="hm-legend-cell hm-1"></div>
+            <div class="hm-legend-cell hm-2"></div>
+            <div class="hm-legend-cell hm-3"></div>
+          </div>
+          <span class="heatmap-legend-label">Lengkap</span>
+          <div style="margin-left:8px;display:flex;align-items:center;gap:4px;">
+            <div class="hm-legend-cell hm-haid"></div>
+            <span class="heatmap-legend-label">Haid</span>
+          </div>
+        </div>
+      </div>
+
       <div class="section-title">Absen Shalat</div>
       <div class="prayer-grid" id="prayer-grid"></div>
     </div>
@@ -305,6 +414,7 @@
   </div>
 </div>
 
+<div class="hm-tooltip" id="hm-tooltip"></div>
 <div id="toast"></div>
 
 <script type="module">
@@ -801,6 +911,9 @@ async function startApp(siswa) {
   renderPrayerGrid();
   showView('absen');
 
+  // Init notifikasi system
+  initNotifSystem();
+
   // Sync Data Jadwal Shalat (Bulan Penuh)
   fetchPrayerTimes();
 
@@ -1209,6 +1322,16 @@ function showToast(msg) {
   on('tab-absen',       'click',  ()=>showView('absen'),      'tab absen');
   on('tab-dashboard',   'click',  ()=>showView('dashboard'),  'tab dashboard');
 
+  // ── DARK MODE ──
+  on('btn-theme', 'click', toggleTheme, 'toggle dark mode');
+
+  // ── HISTORY HEATMAP ──
+  on('streak-badge', 'click', toggleHistoryPanel, 'toggle history panel');
+
+  // ── NOTIFIKASI ──
+  on('btn-notif',       'click', handleNotifToggle, 'toggle notifikasi');
+  on('btn-enable-notif','click', handleNotifToggle, 'aktifkan notifikasi dari banner');
+
   // Filter dashboard
   on('filter-semua', 'click', function(){ setFilter('semua',this); }, 'filter semua');
   on('filter-sudah', 'click', function(){ setFilter('sudah',this); }, 'filter sudah');
@@ -1362,9 +1485,21 @@ async function initializeAppSystem() {
   // ── TAHAP 2: Siapkan UI + cek auto-login ──
   setSplashProgress(88, 'Menyiapkan tampilan...');
 
-  const savedId   = localStorage.getItem('savedUserId');
+  // ── AUTO-LOGIN via URL PARAM (dari QR Code daftar.html) ──
+  // Format: index.html?uid=xxx&kelas=xxx
+  // Prioritas: URL param > localStorage (karena QR = intent yang lebih eksplisit)
+  const urlParams = new URLSearchParams(window.location.search);
+  const paramUid   = urlParams.get('uid');
+  const paramKelas = urlParams.get('kelas');
+
+  // Bersihkan URL param agar tidak muncul di address bar setelah login
+  if (paramUid || paramKelas) {
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+
+  const savedId   = paramUid   || localStorage.getItem('savedUserId');
+  const savedCls  = paramKelas || localStorage.getItem('savedClass');
   const savedNama = localStorage.getItem('savedUserNama');
-  const savedCls  = localStorage.getItem('savedClass');
 
   if (savedId && savedNama && savedCls) {
     const kelasData = dbData.find(k => k.namaKelas === savedCls);
@@ -1496,6 +1631,360 @@ window.addEventListener('online', () => {
     if (player.offsetWidth === 0 && player.offsetHeight === 0) showFallback();
   }, 2000);
 })();
+
+// ══════════════════════════════════════════════════════
+// ── DARK MODE SYSTEM ──
+// Persist di localStorage, animasi smooth via CSS transition
+// ══════════════════════════════════════════════════════
+const THEME_KEY = 'absenShalatTheme';
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  const btn = document.getElementById('btn-theme');
+  if (btn) btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+  try { localStorage.setItem(THEME_KEY, theme); } catch(e) {}
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'light';
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+
+// Init theme saat load (sebelum render apa pun → cegah flash)
+(function initTheme() {
+  let saved = 'light';
+  try { saved = localStorage.getItem(THEME_KEY) || 'light'; } catch(e) {}
+  // Juga respek system preference kalau belum pernah pilih
+  if (!localStorage.getItem(THEME_KEY) && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    saved = 'dark';
+  }
+  applyTheme(saved);
+})();
+
+// ══════════════════════════════════════════════════════
+// ── HISTORY HEATMAP ──
+// 30 hari terakhir, warna berdasarkan jumlah shalat (0-6)
+// + tap untuk detail per hari
+// ══════════════════════════════════════════════════════
+let historyVisible = false;
+let historyCache   = {};  // { 'YYYY-MM-DD': { subuh:'jamaah', ... } }
+
+function getLastNDays(n) {
+  const dates = [];
+  for (let i = n - 1; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    dates.push(d.toISOString().slice(0, 10));
+  }
+  return dates;
+}
+
+function hmCellClass(absen) {
+  if (!absen) return 'hm-0';
+  const vals = Object.values(absen);
+  const hasHaid = vals.some(v => v === 'haid');
+  const shalatCount = ['subuh','dhuha','dzuhur','ashar','maghrib','isya']
+    .filter(p => absen[p] && absen[p] !== 'haid').length;
+  if (hasHaid && shalatCount === 0) return 'hm-haid';
+  if (shalatCount === 0) return 'hm-0';
+  if (shalatCount <= 2) return 'hm-1';
+  if (shalatCount <= 4) return 'hm-2';
+  return 'hm-3';
+}
+
+function formatDateLabel(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  const days = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+  const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agt','Sep','Okt','Nov','Des'];
+  return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]}`;
+}
+
+function buildHeatmapTooltip(dateStr, absen) {
+  const label = formatDateLabel(dateStr);
+  if (!absen || Object.keys(absen).filter(k => !k.startsWith('_') && k !== 'nama').length === 0) {
+    return `${label}\nBelum ada absen`;
+  }
+  const PRAYER_IDS = ['subuh','dhuha','dzuhur','ashar','maghrib','isya'];
+  const PRAYER_EMOJI = {subuh:'🌙',dhuha:'🌞',dzuhur:'☀️',ashar:'🌤️',maghrib:'🌅',isya:'⭐'};
+  const lines = PRAYER_IDS.map(p => {
+    const v = absen[p];
+    const icon = v === 'jamaah' ? '👥' : v === 'munfarid' ? '👤' : v === 'haid' ? '🌸' : v ? '✅' : '❌';
+    return `${PRAYER_EMOJI[p]} ${p.charAt(0).toUpperCase()+p.slice(1)}: ${icon}`;
+  });
+  return label + '\n' + lines.join('\n');
+}
+
+async function loadAndRenderHeatmap() {
+  const wrap = document.getElementById('heatmap-wrap');
+  if (!wrap || !currentUser) return;
+
+  const dates = getLastNDays(30);
+
+  // Parallel fetch semua 30 hari
+  wrap.innerHTML = '<div style="color:var(--text3);font-size:13px;text-align:center;padding:20px;">⏳ Memuat riwayat...</div>';
+
+  try {
+    const results = await Promise.allSettled(
+      dates.map(date =>
+        getDocs(collection(db, "absen", date, "siswa"))
+          .then(snap => {
+            let data = {};
+            snap.forEach(d => { if (d.id === currentUser.id) data = d.data(); });
+            return { date, data };
+          })
+      )
+    );
+
+    historyCache = {};
+    results.forEach(r => {
+      if (r.status === 'fulfilled') {
+        historyCache[r.value.date] = r.value.data;
+      }
+    });
+  } catch (e) {
+    console.warn('[Heatmap] Gagal fetch:', e.message);
+    // Gunakan cache localStorage sebagai fallback
+    dates.forEach(d => {
+      const local = getAbsenFromLocal(currentUser.id, d);
+      if (local) historyCache[d] = local;
+    });
+  }
+
+  renderHeatmap(dates);
+}
+
+function renderHeatmap(dates) {
+  const wrap = document.getElementById('heatmap-wrap');
+  if (!wrap) return;
+
+  // Organisasi ke minggu (kolom vertikal, mulai Senin)
+  // Setiap kolom = 1 minggu (7 hari), baris = hari dalam minggu
+  const todayStr = currentAppDate || today();
+
+  // Buat array minggu
+  const weeks = [];
+  let currentWeek = [];
+  const firstDate = new Date(dates[0] + 'T00:00:00');
+  // Padding awal (hari sebelum tanggal pertama dalam minggu)
+  const firstDow = (firstDate.getDay() + 6) % 7; // 0=Mon ... 6=Sun
+  for (let i = 0; i < firstDow; i++) currentWeek.push(null);
+  dates.forEach(dateStr => {
+    const d = new Date(dateStr + 'T00:00:00');
+    const dow = (d.getDay() + 6) % 7; // 0=Mon
+    if (dow === 0 && currentWeek.length > 0) {
+      weeks.push(currentWeek);
+      currentWeek = [];
+    }
+    currentWeek.push(dateStr);
+  });
+  if (currentWeek.length > 0) weeks.push(currentWeek);
+
+  // Build HTML
+  let html = '<div class="heatmap-rows"><div class="heatmap-day-labels">';
+  ['Sen','','Rab','','Jum','','Min'].forEach(d => {
+    html += `<div class="heatmap-day-label">${d}</div>`;
+  });
+  html += '</div><div class="heatmap-cols">';
+
+  weeks.forEach(week => {
+    html += '<div class="heatmap-col">';
+    // Pad kolom ke 7 baris
+    const padded = [...week];
+    while (padded.length < 7) padded.push(null);
+    padded.forEach(dateStr => {
+      if (!dateStr) {
+        html += `<div class="heatmap-cell" style="background:transparent;cursor:default;"></div>`;
+        return;
+      }
+      const isFuture = dateStr > todayStr;
+      const absen = historyCache[dateStr] || {};
+      const cls = isFuture ? 'hm-future' : hmCellClass(absen);
+      const tooltip = isFuture ? '' : `data-date="${dateStr}"`;
+      html += `<div class="heatmap-cell ${cls}" ${tooltip}></div>`;
+    });
+    html += '</div>';
+  });
+
+  html += '</div></div>';
+  wrap.innerHTML = html;
+
+  // Tooltip handler
+  const tooltip = document.getElementById('hm-tooltip');
+  wrap.querySelectorAll('.heatmap-cell[data-date]').forEach(cell => {
+    cell.addEventListener('mouseenter', e => {
+      const dateStr = cell.dataset.date;
+      const absen   = historyCache[dateStr] || {};
+      tooltip.textContent = '';
+      const lines = buildHeatmapTooltip(dateStr, absen).split('\n');
+      lines.forEach((line, i) => {
+        if (i > 0) tooltip.appendChild(document.createElement('br'));
+        tooltip.appendChild(document.createTextNode(line));
+      });
+      tooltip.classList.add('show');
+    });
+    cell.addEventListener('mousemove', e => {
+      tooltip.style.left = (e.clientX + 12) + 'px';
+      tooltip.style.top  = (e.clientY - 10) + 'px';
+    });
+    cell.addEventListener('mouseleave', () => tooltip.classList.remove('show'));
+    // Touch support
+    cell.addEventListener('click', e => {
+      const dateStr = cell.dataset.date;
+      const absen   = historyCache[dateStr] || {};
+      const msg = buildHeatmapTooltip(dateStr, absen);
+      showToast(msg.split('\n')[0]); // tampilkan baris pertama (tanggal)
+    });
+  });
+
+  // Update streak info
+  const streakEl = document.getElementById('history-streak-info');
+  const streakLocal = parseInt(localStorage.getItem(`streak_${currentUser?.id}`) || '0');
+  if (streakEl) streakEl.textContent = `🔥 Streak: ${streakLocal} hari`;
+}
+
+async function toggleHistoryPanel() {
+  historyVisible = !historyVisible;
+  const panel = document.getElementById('history-panel');
+  if (!panel) return;
+  panel.style.display = historyVisible ? 'block' : 'none';
+  if (historyVisible && _firebaseReady) {
+    await loadAndRenderHeatmap();
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// ── NOTIFICATION SYSTEM ──
+// Menggunakan Web Notification API (tidak butuh server/FCM)
+// Reminder muncul 10 menit sebelum waktu shalat
+// Persists via localStorage untuk interval scheduler
+// ══════════════════════════════════════════════════════
+const NOTIF_KEY = 'absenShalatNotif';
+let notifSchedulerInterval = null;
+let lastNotifFired = {}; // { prayerId: dateStr } — cegah notif ganda per hari
+
+function isNotifEnabled() {
+  try { return localStorage.getItem(NOTIF_KEY) === 'enabled'; } catch { return false; }
+}
+
+function setNotifEnabled(val) {
+  try { localStorage.setItem(NOTIF_KEY, val ? 'enabled' : 'disabled'); } catch {}
+}
+
+async function requestNotifPermission() {
+  if (!('Notification' in window)) {
+    showToast('⚠️ Browser ini tidak support notifikasi');
+    return false;
+  }
+  if (Notification.permission === 'granted') return true;
+  if (Notification.permission === 'denied') {
+    showToast('🔕 Notifikasi diblokir. Aktifkan di pengaturan browser.');
+    return false;
+  }
+  const result = await Notification.requestPermission();
+  return result === 'granted';
+}
+
+function sendPrayerNotif(prayer) {
+  if (Notification.permission !== 'granted') return;
+  const todayStr = currentAppDate || today();
+  // Cegah notif ganda untuk shalat+hari yang sama
+  const key = `${prayer.id}_${todayStr}`;
+  if (lastNotifFired[key]) return;
+  lastNotifFired[key] = true;
+
+  const n = new Notification(`🕌 ${prayer.name} — 10 menit lagi`, {
+    body: `Waktunya bersiap untuk shalat ${prayer.name}.\nMulai: ${prayer.hint.split(' – ')[0]}`,
+    icon: '/logo.png',
+    badge: '/logo.png',
+    tag: `prayer-${prayer.id}`,   // tag agar notif lama di-replace, tidak numpuk
+    requireInteraction: false,
+    silent: false,
+  });
+
+  n.onclick = () => {
+    window.focus();
+    n.close();
+  };
+}
+
+async function checkAndScheduleNotifs() {
+  if (!isNotifEnabled()) return;
+  if (Notification.permission !== 'granted') return;
+  if (!currentUser) return;
+
+  let nowMins;
+  try { nowMins = await getServerWIBMins(); }
+  catch { nowMins = new Date().getHours() * 60 + new Date().getMinutes(); }
+
+  const NOTIF_ADVANCE_MINS = 10; // 10 menit sebelum waktu shalat
+
+  PRAYERS.forEach(prayer => {
+    if (prayer.startMins <= 0) return; // waktu belum diload
+    const notifMins = prayer.startMins - NOTIF_ADVANCE_MINS;
+    // Trigger dalam window 1 menit (scheduler interval = 1 menit)
+    if (nowMins >= notifMins && nowMins < notifMins + 1) {
+      // Cek apakah sudah absen waktu ini hari ini
+      const alreadyDone = !!todayAbsenCache[prayer.id];
+      if (!alreadyDone) {
+        sendPrayerNotif(prayer);
+      }
+    }
+  });
+}
+
+function startNotifScheduler() {
+  if (notifSchedulerInterval) clearInterval(notifSchedulerInterval);
+  // Cek setiap 60 detik
+  notifSchedulerInterval = setInterval(checkAndScheduleNotifs, 60_000);
+  // Juga cek segera
+  checkAndScheduleNotifs();
+}
+
+function stopNotifScheduler() {
+  if (notifSchedulerInterval) {
+    clearInterval(notifSchedulerInterval);
+    notifSchedulerInterval = null;
+  }
+}
+
+async function handleNotifToggle() {
+  if (isNotifEnabled()) {
+    // Matikan
+    setNotifEnabled(false);
+    stopNotifScheduler();
+    updateNotifUI(false);
+    showToast('🔕 Notifikasi dimatikan');
+  } else {
+    // Nyalakan
+    const granted = await requestNotifPermission();
+    if (granted) {
+      setNotifEnabled(true);
+      startNotifScheduler();
+      updateNotifUI(true);
+      showToast('🔔 Notifikasi aktif! Kamu akan diingatkan 10 menit sebelum shalat.');
+    }
+  }
+}
+
+function updateNotifUI(enabled) {
+  const btn  = document.getElementById('btn-notif');
+  const dot  = document.getElementById('notif-dot');
+  const banner = document.getElementById('notif-banner');
+  if (btn) btn.textContent = (enabled ? '🔔' : '🔕') + (enabled ? '' : '');
+  if (btn) btn.title = enabled ? 'Notifikasi aktif (klik untuk matikan)' : 'Aktifkan notifikasi shalat';
+  if (dot) dot.classList.toggle('show', !enabled);
+  if (banner) banner.classList.toggle('show', !enabled && Notification.permission === 'default');
+}
+
+function initNotifSystem() {
+  // Tampilkan banner hanya kalau belum pernah pilih dan browser support
+  if (!('Notification' in window)) return;
+  const already = isNotifEnabled();
+  updateNotifUI(already);
+  if (already && Notification.permission === 'granted') {
+    startNotifScheduler();
+  }
+}
 
 // Jalankan system init setelah semua listener terpasang
 // (listener dipasang synchronously oleh attachAllListeners() di atas,
