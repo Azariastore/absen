@@ -11,7 +11,7 @@
 <style>
 :root {
   --bg:#F7F5F0;--surface:#FFFFFF;--surface2:#F0EDE6;
-  --accent:#1E3A8A;--accent2:#6366F1;--accent3:#C7D2FE;--accent-light:#EEF2FF;
+  --accent:#2D6A4F;--accent2:#52B788;--accent3:#B7E4C7;--accent-light:#E8F5EE;
   --text:#1A1A1A;--text2:#5C5C5C;--text3:#9E9E9E;
   --border:#E0DDD6;--danger:#C1440E;--danger-light:#FEF0ED;--danger-border:#F5C9BE;
   --warn:#B07800;--warn-light:#FFFBEB;--warn-border:#FDE68A;
@@ -33,7 +33,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .field label{display:block;font-size:12px;font-weight:600;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:7px;}
 .opt-tag{font-weight:400;color:var(--text3);text-transform:none;letter-spacing:0;font-size:11px;}
 .input{width:100%;padding:13px 16px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);background:var(--surface);transition:border-color .2s,box-shadow .2s;appearance:none;}
-.input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(30,58,138,.1);}
+.input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(45,106,79,.1);}
 .input.error{border-color:var(--danger);box-shadow:0 0 0 3px rgba(193,68,14,.08);}
 .input:disabled{opacity:.6;cursor:not-allowed;background:var(--surface2);}
 select.input{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235C5C5C' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;cursor:pointer;}
@@ -42,12 +42,12 @@ select.input{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
 .btn{width:100%;padding:14px;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;}
 .btn:active{transform:scale(.98);}
 .btn-primary{background:var(--accent);color:white;}
-.btn-primary:hover{background:#172e6e;}
+.btn-primary:hover{background:#245C41;}
 .btn-primary:disabled{opacity:.6;cursor:not-allowed;transform:none;}
 .btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text2);margin-top:10px;}
 .btn-outline:hover{background:var(--surface2);color:var(--text);}
 .btn-green{background:var(--accent);color:white;margin-top:10px;}
-.btn-green:hover{background:#172e6e;}
+.btn-green:hover{background:#245C41;}
 .btn-muted{background:var(--surface2);color:var(--text2);border:1.5px solid var(--border);margin-top:10px;}
 .btn-muted:hover{background:#E5E1D9;}
 .kode-hint{font-size:12px;color:var(--text3);margin-top:6px;line-height:1.6;}
@@ -96,14 +96,6 @@ select.input{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
 .btn-copy-link.copied{background:var(--accent-light);color:var(--accent);border-color:var(--accent2);}
 .divider{display:flex;align-items:center;gap:10px;margin:16px 0;color:var(--text3);font-size:12px;}
 .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
-/* Token info banner */
-.token-info{background:var(--accent-light);border:1px solid var(--accent3);border-radius:var(--radius-sm);padding:10px 14px;margin-top:12px;font-size:12px;color:var(--accent);line-height:1.6;text-align:left;}
-.token-info-icon{font-size:14px;margin-right:4px;}
-/* Used token screen */
-.used-screen{text-align:center;padding:20px 0;}
-.used-icon{font-size:48px;margin-bottom:16px;}
-.used-title{font-family:'DM Serif Display',serif;font-size:22px;color:var(--danger);margin-bottom:8px;}
-.used-text{color:var(--text2);font-size:13px;line-height:1.7;margin-bottom:24px;}
 @media(max-width:480px){
   body{padding:16px;align-items:flex-start;}
   .card{padding:28px 20px;}
@@ -205,7 +197,7 @@ select.input{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
     </div>
 
     <div class="qr-section">
-      <div class="qr-label">🔍 Scan untuk masuk langsung (1x pakai)</div>
+      <div class="qr-label">🔍 Scan untuk masuk langsung</div>
       <div class="qr-box loading" id="qr-box">
         <canvas id="qr-canvas"></canvas>
         <div class="qr-error" id="qr-error">
@@ -213,46 +205,25 @@ select.input{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
           <span>QR tidak bisa dimuat.<br>Gunakan link di bawah.</span>
         </div>
       </div>
-      <p class="qr-hint">Scan QR atau klik link di bawah untuk masuk langsung.<br>
-      <strong>⚠️ Link hanya bisa dipakai sekali.</strong> Setelah login berhasil,<br>masuk berikutnya via aplikasi biasa.</p>
+      <p class="qr-hint">Scan QR dengan kamera HP untuk langsung masuk<br>tanpa perlu memilih nama dari daftar.</p>
     </div>
 
     <div class="qr-link-wrap">
-      <p class="qr-link-label">🔗 Atau gunakan link ini (sekali pakai)</p>
+      <p class="qr-link-label">🔗 Atau gunakan link ini</p>
       <div class="qr-link-input-wrap">
         <input class="qr-link-input" id="qr-link-input" type="url" readonly placeholder="Memuat link..." onclick="this.select()">
         <button class="btn-copy-link" id="btn-copy-link">Salin</button>
       </div>
     </div>
 
-    <div class="token-info">
-      <span class="token-info-icon">🔒</span>
-      <strong>Keamanan:</strong> Link login di atas bersifat <em>single-use</em> — hanya bisa dipakai
-      sekali dan akan kedaluwarsa dalam 30 menit. Setelah digunakan, login berikutnya otomatis
-      menggunakan sesi tersimpan di perangkat.
-    </div>
-
     <div class="divider">atau</div>
     <button class="btn btn-green"  id="btn-masuk-dashboard">🚀 Masuk ke Dashboard Sekarang</button>
     <button class="btn btn-muted"  id="btn-daftar-lagi">➕ Daftarkan Siswa Lain</button>
   </div>
-
-  <!-- STEP "TOKEN SUDAH DIPAKAI" (injected by JS) -->
-  <div class="step" id="step-used">
-    <div class="used-screen">
-      <div class="used-icon">🔒</div>
-      <div class="used-title">Link Sudah Digunakan</div>
-      <p class="used-text">
-        Link login ini sudah pernah digunakan sebelumnya atau telah kedaluwarsa.<br><br>
-        Silakan login melalui halaman utama dengan memilih kelas dan nama kamu.
-      </p>
-      <button class="btn btn-primary" id="btn-ke-login">Ke Halaman Login →</button>
-    </div>
-  </div>
 </div>
 
 <script type="module">
-import { db, doc, getDoc, setDoc, updateDoc, collection, getDocs, deleteDoc, serverTimestamp } from "./firebase.js";
+import { db, doc, getDoc, setDoc, updateDoc, collection, getDocs } from "./firebase.js";
 import {
   sanitize, genId, debounce,
   validateNama, validatePhone,
@@ -276,59 +247,13 @@ function showWarn(msg) {
 }
 function hideWarn() { document.getElementById('warn-box')?.classList.remove('show'); }
 
-// ══════════════════════════════════════════════════════════
-// ── SINGLE-USE TOKEN SYSTEM ──
-//
-// Alur:
-//   1. Setelah daftar, generate token acak (32 char hex)
-//   2. Simpan di Firestore: loginTokens/{token} = { uid, kelas, expiredAt, used: false }
-//   3. Build URL: index.html?uid=X&kelas=Y&token=Z
-//   4. index.html verifikasi token: cek exists + not used + not expired
-//   5. Jika valid: tandai used=true → hapus setelah 5 detik → login
-//   6. Jika invalid/already used: tampilkan pesan error
-// ══════════════════════════════════════════════════════════
-
-function generateToken(length = 32) {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let result = '';
-  const arr = new Uint8Array(length);
-  crypto.getRandomValues(arr);
-  arr.forEach(b => result += chars[b % chars.length]);
-  return result;
-}
-
-async function createLoginToken(siswaId, kelas) {
-  const token = generateToken(32);
-  const expiredAt = Date.now() + 30 * 60 * 1000; // 30 menit dari sekarang
-
-  try {
-    await setDoc(doc(db, 'loginTokens', token), {
-      uid:       siswaId,
-      kelas:     kelas,
-      expiredAt: expiredAt,
-      used:      false,
-      createdAt: serverTimestamp(),
-    });
-    console.log('[Token] Token berhasil dibuat:', token.slice(0, 8) + '...');
-    return token;
-  } catch (e) {
-    console.error('[Token] Gagal membuat token:', e.message);
-    return null; // fallback: URL tanpa token
-  }
-}
-
-// Build URL dengan token single-use
-async function buildAutoLoginUrl(siswaId, kelas) {
+// ── AUTO-LOGIN URL ──
+// index.html membaca ?uid=xxx&kelas=xxx → langsung login tanpa pilih dropdown
+function buildAutoLoginUrl(siswaId, kelas) {
   const base = window.location.href
     .replace(/[?#].*$/, '')
     .replace(/daftar\.html$/, '')
     .replace(/\/$/, '');
-
-  const token = await createLoginToken(siswaId, kelas);
-  if (token) {
-    return `${base}/index.html?uid=${encodeURIComponent(siswaId)}&kelas=${encodeURIComponent(kelas)}&token=${encodeURIComponent(token)}`;
-  }
-  // Fallback tanpa token jika Firestore gagal
   return `${base}/index.html?uid=${encodeURIComponent(siswaId)}&kelas=${encodeURIComponent(kelas)}`;
 }
 
@@ -492,18 +417,15 @@ async function submitPendaftaran() {
     if (safePhone) data.phone = safePhone;
     await setDoc(doc(db, "kelas", kelas, "siswa", newId), data);
 
-    // Generate token single-use
-    updateSpinnerText('Mendaftarkan data...', 'Membuat link login aman...');
-
     hideSpinner();
     await showSuccessStep(newId, kelas, safeName);
   } catch (e) {
     console.error('[submitPendaftaran]', e);
     hideSpinner();
     btn.disabled = false;
-    if (!navigator.onLine)                    showErr('Tidak ada koneksi internet. Sambungkan lalu coba lagi.');
-    else if (e.code==='permission-denied')    showErr('Akses ditolak. Pastikan kode pendaftaran masih valid.');
-    else if (e.code==='unavailable')          showErr('Server tidak tersedia. Coba lagi dalam beberapa detik.');
+    if (!navigator.onLine)          showErr('Tidak ada koneksi internet. Sambungkan lalu coba lagi.');
+    else if (e.code==='permission-denied') showErr('Akses ditolak. Pastikan kode pendaftaran masih valid.');
+    else if (e.code==='unavailable')       showErr('Server tidak tersedia. Coba lagi dalam beberapa detik.');
     else showErr(`Gagal mendaftar: ${e.message || 'Terjadi kesalahan tidak terduga.'}`);
   }
 }
@@ -524,11 +446,12 @@ async function showSuccessStep(siswaId, kelas, nama) {
     localStorage.setItem('savedClass',    kelas);
   } catch(e) { console.warn('[localStorage]', e.message); }
 
-  // Render step dulu sebelum QR (hindari race condition canvas)
+  // ── FIX RACE CONDITION ──
+  // setStep() dulu → DOM step-3 visible → baru render QR
+  // renderQRCode() di utils.js tambahan 2x rAF agar canvas benar-benar rendered
   setStep(3);
 
-  // Build URL dengan single-use token (async)
-  loginUrl = await buildAutoLoginUrl(siswaId, kelas);
+  loginUrl = buildAutoLoginUrl(siswaId, kelas);
   document.getElementById('qr-link-input').value = loginUrl;
 
   const qrBox = document.getElementById('qr-box');
@@ -543,7 +466,7 @@ async function showSuccessStep(siswaId, kelas, nama) {
     showWarn('QR Code tidak bisa dimuat. Gunakan link di bawah untuk masuk.');
   }
 
-  // Tombol masuk dashboard — langsung ikuti loginUrl (sudah ada token)
+  // Tombol masuk dashboard
   document.getElementById('btn-masuk-dashboard').addEventListener('click', () => {
     window.location.href = loginUrl;
   });
@@ -599,15 +522,6 @@ function resetForm() {
   document.getElementById('card-sub').textContent = 'Isi form di bawah untuk mendaftarkan data kamu';
   document.getElementById('kode-input').focus();
 }
-
-// ── STEP USED: Tombol ke halaman login ──
-document.getElementById('btn-ke-login')?.addEventListener('click', () => {
-  const base = window.location.href
-    .replace(/[?#].*$/, '')
-    .replace(/daftar\.html$/, '')
-    .replace(/\/$/, '');
-  window.location.href = base + '/index.html';
-});
 
 // ── SERVICE WORKER ──
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
